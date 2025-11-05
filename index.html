@@ -853,8 +853,9 @@
     // ========================================
     function createParticles() {
       const container = document.getElementById('particles');
+      if (!container) return;
+      
       const particleCount = 30;
-
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
@@ -872,8 +873,10 @@
     function toggleMenu() {
       const menu = document.getElementById('sideMenu');
       const overlay = document.getElementById('menuOverlay');
-      menu.classList.toggle('active');
-      overlay.classList.toggle('active');
+      if (menu && overlay) {
+        menu.classList.toggle('active');
+        overlay.classList.toggle('active');
+      }
     }
 
     // ========================================
@@ -883,6 +886,8 @@
       const modal = document.getElementById('authModal');
       const loginForm = document.getElementById('loginForm');
       const registerForm = document.getElementById('registerForm');
+
+      if (!modal || !loginForm || !registerForm) return;
 
       if (type === 'login') {
         loginForm.style.display = 'block';
@@ -896,7 +901,10 @@
     }
 
     function closeAuthModal() {
-      document.getElementById('authModal').classList.remove('show');
+      const modal = document.getElementById('authModal');
+      if (modal) {
+        modal.classList.remove('show');
+      }
     }
 
     // ========================================
@@ -908,6 +916,11 @@
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
       const btn = document.getElementById('loginBtn');
+
+      if (!email || !password) {
+        alert('Please enter both email and password');
+        return;
+      }
 
       // Disable button and show loading
       btn.disabled = true;
@@ -965,6 +978,11 @@
       const btn = document.getElementById('registerBtn');
 
       // Validation
+      if (!name || !email || !password) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
       if (password.length < 6) {
         alert('Password must be at least 6 characters');
         return;
@@ -1027,9 +1045,9 @@
     }
 
     // ========================================
-    // PWA INSTALLATION LOGIC
+    // PWA INSTALLATION LOGIC (COMPLETE)
     // ========================================
-    let deferredPrompt;
+    let deferredPrompt = null;
     const installPrompt = document.getElementById('installPrompt');
 
     // Check if already installed
@@ -1040,61 +1058,108 @@
 
       // If already installed, don't show prompt
       if (isInstalled === 'true') {
+        console.log('App already installed');
         return;
       }
 
-      // Show prompt if never shown or twice per day
-      if (!lastPrompt || (now - parseInt(lastPrompt)) > 43200000) { // 12 hours
+      // Show prompt if never shown or after 12 hours
+      if (!lastPrompt || (now - parseInt(lastPrompt)) > 43200000) {
         setTimeout(() => {
-          installPrompt.classList.add('show');
+          if (installPrompt && deferredPrompt) {
+            installPrompt.classList.add('show');
+          }
         }, 3000);
       }
     }
 
     // Capture beforeinstallprompt event
     window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('✓ beforeinstallprompt event fired - PWA is installable');
+      
+      // Prevent the default browser install prompt
       e.preventDefault();
+      
+      // Store the event for later use
       deferredPrompt = e;
-      checkInstallStatus();
+      
+      // Show custom install prompt after delay
+      setTimeout(() => {
+        if (installPrompt && !localStorage.getItem('heartai_installed')) {
+          installPrompt.classList.add('show');
+        }
+      }, 3000);
     });
 
-    // Install PWA
+    // Install PWA function
     async function installPWA() {
+      console.log('Install button clicked');
+      
       if (!deferredPrompt) {
-        alert('Installation not available on this device');
+        console.error('❌ No install prompt available');
+        alert('Installation not available. Please try:\n\n' +
+              '1. Visit this site on Chrome/Edge browser\n' +
+              '2. Make sure you\'re on HTTPS (deployed site)\n' +
+              '3. Clear browser cache and try again\n' +
+              '4. App might already be installed\n' +
+              '5. Check if icons (icon-192.png, icon-512.png) exist');
         return;
       }
 
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-
-      if (outcome === 'accepted') {
-        localStorage.setItem('heartai_installed', 'true');
+      // Hide the install prompt UI
+      if (installPrompt) {
         installPrompt.classList.remove('show');
       }
 
+      // Show the browser install prompt
+      deferredPrompt.prompt();
+
+      // Wait for user response
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to install prompt: ${outcome}`);
+
+      if (outcome === 'accepted') {
+        console.log('✓ PWA installation accepted');
+        localStorage.setItem('heartai_installed', 'true');
+      } else {
+        console.log('✗ PWA installation dismissed');
+      }
+
+      // Clear the prompt
       deferredPrompt = null;
     }
 
-    // Later button
+    // Later button function
     function laterPWA() {
+      if (installPrompt) {
+        installPrompt.classList.remove('show');
+      }
+      
       localStorage.setItem('heartai_last_prompt', Date.now().toString());
-      installPrompt.classList.remove('show');
-
-      // Schedule next prompt in 12 hours
+      console.log('Install prompt dismissed - will show again in 12 hours');
+      
+      // Show again in 12 hours
       setTimeout(() => {
-        installPrompt.classList.add('show');
-      }, 43200000);
+        if (deferredPrompt && !localStorage.getItem('heartai_installed')) {
+          if (installPrompt) {
+            installPrompt.classList.add('show');
+          }
+        }
+      }, 43200000); // 12 hours
     }
 
-    // Detect if app is installed
+    // Detect if app was installed
     window.addEventListener('appinstalled', () => {
+      console.log('✓ PWA was successfully installed');
       localStorage.setItem('heartai_installed', 'true');
-      installPrompt.classList.remove('show');
+      if (installPrompt) {
+        installPrompt.classList.remove('show');
+      }
+      deferredPrompt = null;
     });
 
-    // Check if running in standalone mode
+    // Check if running in standalone mode (already installed)
     if (window.matchMedia('(display-mode: standalone)').matches) {
+      console.log('✓ App is running as installed PWA');
       localStorage.setItem('heartai_installed', 'true');
     }
 
@@ -1137,6 +1202,7 @@
         setTimeout(() => {
           Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
+              console.log('✓ Notification permission granted');
               new Notification('Heart AI', {
                 body: 'Notifications enabled! Stay updated on your health.',
                 icon: 'icon-192.png'
@@ -1148,26 +1214,98 @@
     }
 
     // ========================================
-    // INITIALIZATION
+    // SERVICE WORKER REGISTRATION
+    // ========================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('✓ Service Worker registered successfully');
+            console.log('   Scope:', registration.scope);
+            
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              console.log('New Service Worker found, installing...');
+              
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'activated') {
+                  console.log('✓ New Service Worker activated');
+                }
+              });
+            });
+          })
+          .catch(error => {
+            console.error('✗ Service Worker registration failed:', error);
+          });
+      });
+    } else {
+      console.warn('⚠ Service Workers not supported in this browser');
+    }
+
+    // ========================================
+    // DEBUG: PWA READINESS CHECK
+    // ========================================
+    function debugPWAStatus() {
+      console.log('=== PWA Readiness Check ===');
+      console.log('1. HTTPS:', window.location.protocol === 'https:' || window.location.hostname === 'localhost');
+      console.log('2. Service Worker supported:', 'serviceWorker' in navigator);
+      console.log('3. Manifest linked:', document.querySelector('link[rel="manifest"]') !== null);
+      console.log('4. Install prompt available:', deferredPrompt !== null);
+      console.log('5. Already installed:', localStorage.getItem('heartai_installed'));
+      console.log('6. Running standalone:', window.matchMedia('(display-mode: standalone)').matches);
+      console.log('7. Notification permission:', 'Notification' in window ? Notification.permission : 'not supported');
+    }
+
+    // ========================================
+    // INITIALIZATION ON PAGE LOAD
     // ========================================
     window.addEventListener('DOMContentLoaded', () => {
+      console.log('=== Heart AI Initializing ===');
+      
+      // Initialize Supabase
       initializeSupabase();
+      
+      // Create particle background
       createParticles();
+      
+      // Check PWA install status
       checkInstallStatus();
+      
+      // Check for app updates
       checkForUpdates();
+      
+      // Request notification permission (delayed)
       requestNotificationPermission();
-
-      // Register service worker
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('Service Worker registered:', reg))
-          .catch(err => console.error('Service Worker registration failed:', err));
+      
+      // Debug PWA status after 2 seconds
+      setTimeout(debugPWAStatus, 2000);
+      
+      // Setup form listeners
+      const loginForm = document.querySelector('#loginForm form');
+      const registerForm = document.querySelector('#registerForm form');
+      
+      if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
       }
+      
+      if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
+      }
+      
+      console.log('✓ Heart AI initialized successfully');
     });
 
     // Periodic version check (every 30 minutes)
     setInterval(checkForUpdates, 1800000);
-  </script>
+
+    // Log when page becomes visible again (for PWA lifecycle)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('App became visible, checking for updates...');
+        checkForUpdates();
+      }
+    });
+</script>
 </body>
 </html>
-
