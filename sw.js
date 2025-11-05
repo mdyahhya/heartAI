@@ -1,62 +1,69 @@
-// Heart AI Service Worker for PWA (handles auto version updates)
-const CACHE_NAME = 'heartai-cache-v1.0.0';
-const APP_SHELL = [
+const CACHE_NAME = 'heartai-v1.0.1';
+const urlsToCache = [
   '/',
-  'index.html',
-  'BMI.html',
-  'profile.html',
-  'about.html',
-  'manifest.json',
-  'heart.png',
-  'heart.png'
-  // Add CSS/JS if saved separately
+  '/index.html',
+  '/BMI.html',
+  '/profile.html',
+  '/about.html',
+  '/manifest.json',
+  '/heart.png'
 ];
 
-// On install, cache core files
+// Install - cache files immediately
 self.addEventListener('install', event => {
-  self.skipWaiting();
+  console.log('[SW] Installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('[SW] Caching app shell');
+        return cache.addAll(urlsToCache);
+      })
+      .then(() => {
+        console.log('[SW] Skip waiting');
+        return self.skipWaiting();
+      })
   );
 });
 
-// On activate, clean up old caches
+// Activate - clean old caches and claim clients
 self.addEventListener('activate', event => {
+  console.log('[SW] Activating...');
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-    ))
+    caches.keys()
+      .then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('[SW] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => {
+        console.log('[SW] Claiming clients');
+        return self.clients.claim();
+      })
   );
-  self.clients.claim();
 });
 
-// On fetch, try cache then network (network-first for html)
+// Fetch - network first, fallback to cache
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-
-  if (event.request.url.endsWith('.html')) {
-    event.respondWith(
-      fetch(event.request).then(resp => {
-        // Optionally update cache for html
-        const respClone = resp.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, respClone));
-        return resp;
-      }).catch(() => caches.match(event.request))
-    );
-  } else {
-    event.respondWith(
-      caches.match(event.request).then(resp =>
-        resp || fetch(event.request).then(netResp => {
-          // Store new cache
-          if(netResp.ok) {
-            const netRespClone = netResp.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, netRespClone));
-          }
-          return netResp;
-        })
-      )
-    );
-  }
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        // Clone response before caching
+        const responseToCache = response.clone();
+        
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseToCache);
+        });
+        
+        return response;
+      })
+      .catch(() => {
+        // If network fails, try cache
+        return caches.match(event.request);
+      })
+  );
 });
-
-// (Version.json check handled in app JS for reload logic)
