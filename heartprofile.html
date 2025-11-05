@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <title>Heart AI — Profile</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Same dark/glass/neon theme as index.html */
+    body {
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, #000000 0%, #050510 60%, #0A3B7B 100%);
+      color: #fff;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    .particles { position: fixed; width:100%; height:100%; left:0; top:0; z-index:0; pointer-events:none; }
+    .particle { position:absolute; width:3px; height:3px; background:#1E90FF; border-radius:50%; opacity:0.3; animation: float 15s infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-80px)} }
+    header {
+      position:fixed; top:0; left:0; width:100%; height:60px;
+      background:rgba(0,0,0,0.9); border-bottom:1px solid rgba(255,255,255,0.1);
+      display:flex; align-items:center; justify-content:space-between; z-index:99;
+      padding:0 20px;
+    }
+    .header-title { font-size:1.3em; background:linear-gradient(135deg,#1E90FF,#fff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .header-btns { display:flex; gap:10px; }
+    .header-btn { padding:8px 15px; background:rgba(10,59,123,0.15); border:1px solid rgba(255,255,255,0.1); border-radius:7px;
+      color:#fff; text-decoration:none; font-size:0.95em; transition:all 0.2s; }
+    .header-btn:hover { background:rgba(30,144,255,.2); box-shadow:0 0 10px #1E90FF40; }
+    main { margin-top:70px; margin-bottom:80px; padding:20px 8px; z-index:1; position:relative; }
+    .profile-card {
+      max-width:412px; margin:30px auto;
+      background:rgba(10,59,123,0.15); border:1px solid #fff2; border-radius:18px; box-shadow:0 0 20px #1E90FF30;
+      padding:30px 22px; text-align:center;
+    }
+    .card-title { font-size:1.7em; margin-bottom:18px; color:#1E90FF; }
+    .avatar-wrap { margin-bottom:18px; }
+    .avatar-img {
+      width:100px; height:100px; object-fit:cover; border-radius:100px;
+      border:3px solid #1E90FF; box-shadow:0 0 15px #1E90FF90;
+    }
+    .avatar-btn { margin-top:12px; padding:7px 18px; border:none; background:linear-gradient(90deg,#0A3B7B,#1E90FF); color:#fff;
+      border-radius:7px; font-size:0.95em; cursor:pointer; transition:all 0.2s; }
+    .avatar-btn:hover { background:#1E90FF; }
+    .profile-fields { margin-bottom:22px; }
+    .profile-field { margin-bottom:15px; text-align:left; }
+    label { display:block; margin-bottom:6px; font-size:0.95em; color:#1E90FF; }
+    input[type="text"],input[type="email"],input[type="date"],input[type="tel"],select {
+      width:100%; padding:11px 12px; border-radius:8px;
+      background:rgba(255,255,255,0.05); border:1px solid #fff3;
+      color:#fff; font-size:0.95em;
+      margin-bottom:5px;
+    }
+    input:focus,select:focus { outline:none; border-color:#1E90FF; box-shadow:0 0 8px #1E90FF40; }
+    .btn-group { display:flex; gap:12px; justify-content:center; margin:18px 0; }
+    .save-btn, .logout-btn {
+      padding:12px 28px; font-size:1.09em; border:none; border-radius:9px; font-weight:bold;
+      cursor:pointer; transition:all .2s;
+    }
+    .save-btn { background:linear-gradient(90deg,#1E90FF,#0A3B7B); color:#fff; }
+    .save-btn:hover { background:#1E90FF; }
+    .logout-btn { background:rgba(255,255,255,.09); color:#fff; border:1px solid #fff1; }
+    .logout-btn:hover { background:rgba(255,255,255,.19);}
+    .footer-text { text-align:center; padding:18px; font-size:0.92em; opacity:0.7;}
+    .taskbar-btn { display:flex; flex-direction:column; align-items:center; text-decoration:none; color:#fff; flex:1; height:100%; }
+    .taskbar-btn:hover { color:#1E90FF; background:rgba(30,144,255,.15);}
+    .bottom-taskbar { position:fixed; bottom:0; left:0; right:0; height:70px; background:rgba(0,0,0,0.94);
+      border-top:1px solid rgba(255,255,255,0.1); display:flex; z-index:999;
+      justify-content:space-around; align-items:center;}
+    .taskbar-icon { font-size:1.5em; }
+    .taskbar-label { font-size:0.81em; text-transform:uppercase; }
+    @media (max-width: 420px) {
+      .card-title { font-size:1.19em;}
+      .profile-card { padding:20px 6px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  <header>
+    <div class="header-title">Heart AI — Profile</div>
+    <div class="header-btns">
+      <a href="index.html" class="header-btn">🏠 Home</a>
+      <a href="BMI.html" class="header-btn">📊 BMI</a>
+      <a href="about.html" class="header-btn">ℹ️ About</a>
+    </div>
+  </header>
+  <main>
+    <div class="profile-card" id="profileCard">
+      <div class="card-title">👤 Your Profile</div>
+      <div class="avatar-wrap">
+        <img src="icon-192.png" id="avatarImg" class="avatar-img" alt="Avatar">
+        <div>
+          <input type="file" id="avatarInput" accept="image/*" style="display:none">
+          <button class="avatar-btn" onclick="document.getElementById('avatarInput').click();">Change Avatar</button>
+        </div>
+      </div>
+      <form id="profileForm" class="profile-fields" autocomplete="off">
+        <div class="profile-field">
+          <label>Email</label>
+          <input type="email" id="emailField" disabled>
+        </div>
+        <div class="profile-field">
+          <label>Full Name</label>
+          <input type="text" id="nameField" required>
+        </div>
+        <div class="profile-field">
+          <label>Mobile</label>
+          <input type="tel" id="mobileField">
+        </div>
+        <div class="profile-field">
+          <label>Gender</label>
+          <select id="genderField">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label>Birthdate</label>
+          <input type="date" id="birthField">
+        </div>
+        <div class="btn-group">
+          <button type="submit" class="save-btn">💾 Save</button>
+          <button type="button" class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </form>
+      <div id="saveMessage"></div>
+    </div>
+    <div class="footer-text">
+      Manage profile & avatar. Data stored with Heart AI / Supabase. Responsive for ≤412px screens.
+    </div>
+  </main>
+  <nav class="bottom-taskbar">
+    <a href="index.html" class="taskbar-btn"><div class="taskbar-icon">🏠</div><div class="taskbar-label">HOME</div></a>
+    <a href="BMI.html" class="taskbar-btn"><div class="taskbar-icon">📊</div><div class="taskbar-label">BMI</div></a>
+    <a href="about.html" class="taskbar-btn"><div class="taskbar-icon">ℹ️</div><div class="taskbar-label">ABOUT</div></a>
+  </nav>
+  <script>
+    // Particle background
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for(let i=0;i<30;i++) {
+        const p = document.createElement('div');
+        p.className='particle';
+        p.style.left=(Math.random()*100)+'%';
+        p.style.top=(Math.random()*100)+'%';
+        p.style.animationDelay=(Math.random()*18)+'s';
+        container.appendChild(p);
+      }
+    }
+
+    // Supabase
+    const SUPABASE_URL = 'https://ktqwhwzbxyoplawjmbao.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZdRF5ogFMTqeijKas';
+    let supabase;
+    function initializeSupabase() {
+      try {supabase = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); return true;}
+      catch(err){console.error('Supabase error',err);return false;}
+    }
+    // Get user details from localStorage
+    function getUser() {
+      return JSON.parse(localStorage.getItem('heartai_user'));
+    }
+    // Display Profile
+    function displayProfile() {
+      const user=getUser();
+      if(!user){alert('User not found. Login again.');window.location.href='index.html';return;}
+      document.getElementById('emailField').value=user.email||'';
+      document.getElementById('nameField').value=user.full_name||'';
+      document.getElementById('mobileField').value=user.mobile||'';
+      document.getElementById('genderField').value=user.gender||'';
+      document.getElementById('birthField').value=user.birthdate||'';
+      // Avatar
+      let avatar=user.avatar_url||localStorage.getItem('heartai_avatar')||'icon-192.png';
+      document.getElementById('avatarImg').src=avatar;
+    }
+    // Save/Update user
+    async function saveProfile(e) {
+      e.preventDefault();
+      const user=getUser(); if(!user){alert('No valid session');return;}
+      const name=document.getElementById('nameField').value;
+      const mobile=document.getElementById('mobileField').value;
+      const gender=document.getElementById('genderField').value;
+      const birth=document.getElementById('birthField').value;
+      const avatar=document.getElementById('avatarImg').src;
+      try {
+        await initializeSupabase();
+        const {error}=await supabase.from('heartlogin').update({
+          full_name:name,
+          mobile:mobile,
+          gender:gender,
+          birthdate:birth,
+          avatar_url:avatar
+        }).eq('id',user.id);
+        if(error) throw error;
+        localStorage.setItem('heartai_user',JSON.stringify({...user,full_name:name,mobile:mobile,gender:gender,birthdate:birth,avatar_url:avatar}));
+        document.getElementById('saveMessage').innerText = 'Saved!';
+        setTimeout(()=>{document.getElementById('saveMessage').innerText='';},2000);
+      } catch(err){
+        alert('Save failed: '+err.message);
+      }
+    }
+    // Avatar Upload
+    document.getElementById('avatarInput').addEventListener('change',function(){
+      const file=this.files[0];
+      if(file && file.type.startsWith('image/')) {
+        const reader=new FileReader();
+        reader.onload=function(e){
+          document.getElementById('avatarImg').src=e.target.result;
+          localStorage.setItem('heartai_avatar',e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    // Logout
+    function logout(){
+      if(confirm('Logout?')) {
+        localStorage.removeItem('heartai_user');
+        localStorage.removeItem('heartai_logged_in');
+        alert('Logged out!');
+        window.location.href='index.html';
+      }
+    }
+    window.addEventListener('DOMContentLoaded',()=>{
+      createParticles();
+      initializeSupabase();
+      displayProfile();
+      document.getElementById('profileForm').addEventListener('submit',saveProfile);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Heart AI - Advanced Heart Disease Prediction using AI and Machine Learning">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <title>Heart AI - Disease Prediction</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- App Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* ========================================
+       RESET & BASE STYLES
+       ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black-primary: #000000;
+      --black-secondary: #050510;
+      --blue-deep: #0A3B7B;
+      --blue-neon: #1E90FF;
+      --white-primary: #FFFFFF;
+      --glass-bg: rgba(10, 59, 123, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --shadow-glow: 0 0 20px rgba(30, 144, 255, 0.3);
+      --transition-fast: 0.3s ease;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--black-primary) 0%, var(--black-secondary) 50%, var(--blue-deep) 100%);
+      color: var(--white-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ========================================
+       ANIMATED BACKGROUND PARTICLES
+       ======================================== */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: var(--blue-neon);
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: float 15s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      25% { transform: translateY(-100px) translateX(50px); }
+      50% { transform: translateY(-200px) translateX(-50px); }
+      75% { transform: translateY(-100px) translateX(100px); }
+    }
+
+    /* ========================================
+       SIDE MENU NAVIGATION
+       ======================================== */
+    .side-menu {
+      position: fixed;
+      left: -280px;
+      top: 0;
+      width: 280px;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--glass-border);
+      z-index: 1000;
+      transition: left var(--transition-fast);
+      overflow-y: auto;
+    }
+
+    .side-menu.active {
+      left: 0;
+    }
+
+    .menu-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .menu-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      background: linear-gradient(135deg, var(--blue-neon), var(--white-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .close-menu-btn {
+      background: none;
+      border: none;
+      color: var(--white-primary);
+      font-size: 1.8em;
+      cursor: pointer;
+      transition: transform var(--transition-fast);
+    }
+
+    .close-menu-btn:hover {
+      transform: rotate(90deg);
+    }
+
+    .menu-links {
+      padding: 20px 0;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      color: var(--white-primary);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      border-left: 3px solid transparent;
+    }
+
+    .menu-link:hover {
+      background: var(--glass-bg);
+      border-left-color: var(--blue-neon);
+      box-shadow: inset var(--shadow-glow);
+    }
+
+    .menu-link.bmi-special {
+      background: linear-gradient(90deg, rgba(30, 144, 255, 0.2), transparent);
+      border-left-color: var(--blue-neon);
+    }
+
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 999;
+      display: none;
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .menu-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* ========================================
+       TOP HEADER
+       ======================================== */
+    .top-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 998;
+    }
+
+    .menu-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--white-primary);
+      font-size: 1.8em;
+      cursor: pointer;
+      padding: 5px;
+      transition: all var(--transition-fast);
+    }
+
+    .menu-toggle-btn:hover {
+      color: var(--blue-neon);
+      text-shadow: var(--shadow-glow);
+    }
+
+    .header-title {
+      flex: 1;
+      text-align: center;
+      font-size: 1.3em;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    /* ========================================
+       MAIN CONTENT AREA
+       ======================================== */
+    .main-content {
+      margin-top: 60px;
+      margin-bottom: 80px;
+      padding: 30px 20px;
+      min-height: calc(100vh - 140px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-section {
+      max-width: 412px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .main-heading {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--white-primary), var(--blue-neon));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(30, 144, 255, 0.5);
+      animation: pulse-glow 3s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.3); }
+    }
+
+    .main-description {
+      font-size: 1.1em;
+      line-height: 1.8;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+
+    .project-credits {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 25px;
+      margin: 30px 0;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .credits-title {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: var(--blue-neon);
+    }
+
+    .credit-name {
+      font-size: 1em;
+      margin: 8px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .credit-name::before {
+      content: '◆';
+      position: absolute;
+      left: 0;
+      color: var(--blue-neon);
+    }
+
+    /* ========================================
+       FEATURE CARDS
+       ======================================== */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      max-width: 412px;
+      margin: 40px auto;
+    }
+
+    .feature-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 25px;
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-glow);
+      border-color: var(--blue-neon);
+    }
+
+    .feature-icon {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+
+    .feature-title {
+      font-size: 1.3em;
+      margin-bottom: 10px;
+      color: var(--blue-neon);
+    }
+
+    .feature-description {
+      font-size: 0.95em;
+      opacity: 0.85;
+      line-height: 1.6;
+    }
+
+    /* ========================================
+       BOTTOM TASKBAR
+       ======================================== */
+    .bottom-taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 998;
+    }
+
+    .taskbar-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--white-primary);
+      transition: all var(--transition-fast);
+      flex: 1;
+      height: 100%;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    .taskbar-btn:hover,
+    .taskbar-btn.active {
+      color: var(--blue-neon);
+      background: rgba(30, 144, 255, 0.1);
+    }
+
+    .taskbar-icon {
+      font-size: 1.5em;
+      margin-bottom: 5px;
+    }
+
+    .taskbar-label {
+      font-size: 0.75em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ========================================
+       PWA INSTALL PROMPT
+       ======================================== */
+    .install-prompt {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 380px;
+      background: linear-gradient(135deg, rgba(10, 59, 123, 0.95), rgba(0, 0, 0, 0.95));
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--blue-neon);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 40px rgba(30, 144, 255, 0.4);
+      z-index: 1001;
+      display: none;
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+      to { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+
+    .install-prompt.show {
+      display: block;
+    }
+
+    .prompt-title {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: var(--blue-neon);
+    }
+
+    .prompt-description {
+      font-size: 0.9em;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+
+    .prompt-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-install,
+    .btn-later {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-install {
+      background: linear-gradient(135deg, var(--blue-neon), var(--blue-deep));
+      color: var(--white-primary);
+    }
+
+    .btn-install:hover {
+      box-shadow: var(--shadow-glow);
+      transform: scale(1.05);
+    }
+
+    .btn-later {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white-primary);
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-later:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* ========================================
+       AUTH MODAL (Login/Register)
+       ======================================== */
+    .auth-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-modal.show {
+      display: flex;
+    }
+
+    .auth-container {
+      background: linear-gradient(135deg, rgba(5, 5, 16, 0.95), rgba(10, 59, 123, 0.3));
+      border: 2px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 35px 25px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-glow);
+      position: relative;
+    }
+
+    .close-auth-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: var(--white-primary);
+      font-size: 1.5em;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .close-auth-btn:hover {
+      color: var(--blue-neon);
+      transform: rotate(90deg);
+    }
+
+    .auth-title {
+      font-size: 1.8em;
+      margin-bottom: 25px;
+      text-align: center;
+      color: var(--blue-neon);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+      color: var(--blue-neon);
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 12px 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      color: var(--white-primary);
+      font-size: 1em;
+      transition: all var(--transition-fast);
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--blue-neon);
+      box-shadow: 0 0 15px rgba(30, 144, 255, 0.3);
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .error-message {
+      color: #FF4444;
+      font-size: 0.85em;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--blue-neon), var(--blue-deep));
+      border: none;
+      border-radius: 10px;
+      color: var(--white-primary);
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9em;
+    }
+
+    .auth-toggle a {
+      color: var(--blue-neon);
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .auth-toggle a:hover {
+      text-decoration: underline;
+    }
+
+    /* ========================================
+       LOADING SPINNER
+       ======================================== */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--white-primary);
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========================================
+       RESPONSIVE DESIGN
+       ======================================== */
+    @media (min-width: 768px) {
+      .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 800px;
+      }
+
+      .hero-section {
+        max-width: 800px;
+      }
+    }
+
+    @media (max-width: 412px) {
+      .main-heading {
+        font-size: 2em;
+      }
+
+      .top-header {
+        height: 55px;
+      }
+
+      .bottom-taskbar {
+        height: 65px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Background Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Side Menu Navigation -->
+  <nav class="side-menu" id="sideMenu">
+    <div class="menu-header">
+      <div class="menu-title">Heart AI</div>
+      <button class="close-menu-btn" onclick="toggleMenu()">×</button>
+    </div>
+    <div class="menu-links">
+      <a href="index.html" class="menu-link">🏠 Home</a>
+      <a href="BMI.html" class="menu-link bmi-special">📊 BMI Calculator</a>
+      <a href="profile.html" class="menu-link">👤 Profile</a>
+      <a href="about.html" class="menu-link">ℹ️ About</a>
+      <a href="#" class="menu-link" onclick="showAuthModal('login')">🔑 Login</a>
+      <a href="#" class="menu-link" onclick="logout()">🚪 Logout</a>
+    </div>
+  </nav>
+  <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+  <!-- Top Header -->
+  <header class="top-header">
+    <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
+    <div class="header-title">Heart AI</div>
+    <div style="width: 40px;"></div> <!-- Spacer for centering -->
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <section class="hero-section">
+      <h1 class="main-heading">Heart Disease Prediction</h1>
+      <p class="main-description">
+        Advanced AI-powered heart disease prediction system. 
+        Get accurate predictions, track your BMI, and monitor your cardiovascular health 
+        with cutting-edge machine learning algorithms.
+      </p>
+
+      <div class="project-credits">
+        <div class="credits-title">Project By</div>
+        <div class="credit-name">1) Mariya Patel</div>
+        <div class="credit-name">2) Deepika Jangam</div>
+        <div class="credit-name">3) Inzila Shaikh</div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card" onclick="window.location.href='BMI.html'">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">BMI Calculator</div>
+          <div class="feature-description">
+            Track your Body Mass Index with our advanced calculator supporting multiple units
+          </div>
+        </div>
+
+        <div class="feature-card" onclick="showAuthModal('login')">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-title">AI Prediction</div>
+          <div class="feature-description">
+            Get instant heart disease risk predictions powered by machine learning
+          </div>
+        </div>
+
+        <div class="feature-card" onclick="window.location.href='profile.html'">
+          <div class="feature-icon">👤</div>
+          <div class="feature-title">Your Profile</div>
+          <div class="feature-description">
+            Manage your health data and track prediction history
+          </div>
+        </div>
+
+        <div class="feature-card" onclick="window.location.href='about.html'">
+          <div class="feature-icon">ℹ️</div>
+          <div class="feature-title">About</div>
+          <div class="feature-description">
+            Learn more about our AI technology and research
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Taskbar -->
+  <nav class="bottom-taskbar">
+    <a href="index.html" class="taskbar-btn active">
+      <div class="taskbar-icon">🏠</div>
+      <div class="taskbar-label">Home</div>
+    </a>
+    <a href="profile.html" class="taskbar-btn">
+      <div class="taskbar-icon">👤</div>
+      <div class="taskbar-label">Profile</div>
+    </a>
+    <a href="about.html" class="taskbar-btn">
+      <div class="taskbar-icon">ℹ️</div>
+      <div class="taskbar-label">About</div>
+    </a>
+  </nav>
+
+  <!-- PWA Install Prompt -->
+  <div class="install-prompt" id="installPrompt">
+    <div class="prompt-title">📱 Install Heart AI</div>
+    <div class="prompt-description">
+      Install our app for quick access and offline capabilities
+    </div>
+    <div class="prompt-buttons">
+      <button class="btn-install" onclick="installPWA()">Install</button>
+      <button class="btn-later" onclick="laterPWA()">Later</button>
+    </div>
+  </div>
+
+  <!-- Auth Modal (Login/Register) -->
+  <div class="auth-modal" id="authModal">
+    <div class="auth-container">
+      <button class="close-auth-btn" onclick="closeAuthModal()">×</button>
+      
+      <!-- Login Form -->
+      <div id="loginForm">
+        <h2 class="auth-title">Login to Heart AI</h2>
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com" required>
+            <div class="error-message" id="loginEmailError">Invalid email</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" required>
+            <div class="error-message" id="loginPasswordError">Password required</div>
+          </div>
+          <button type="submit" class="btn-submit" id="loginBtn">Login</button>
+        </form>
+        <div class="auth-toggle">
+          Don't have an account? <a onclick="showAuthModal('register')">Register</a>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerForm" style="display: none;">
+        <h2 class="auth-title">Register</h2>
+        <form onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" id="registerName" placeholder="John Doe" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="registerEmail" placeholder="your@email.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile</label>
+            <input type="tel" class="form-input" id="registerMobile" placeholder="+91 1234567890">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gender</label>
+            <select class="form-select" id="registerGender">
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Birthdate</label>
+            <input type="date" class="form-input" id="registerBirthdate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="registerPassword" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn-submit" id="registerBtn">Register</button>
+        </form>
+        <div class="auth-toggle">
+          Already have an account? <a onclick="showAuthModal('login')">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // SUPABASE CONFIGURATION
+    // ========================================
+    const SUPABASE_URL = 'https://ktqwhwzbxyoplawjmbao.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZdRF5ogFMTqeijKas';
+    let supabase;
+
+    function initializeSupabase() {
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log('✓ Supabase initialized');
+        return true;
+      } catch (error) {
+        console.error('✗ Supabase initialization failed:', error);
+        return false;
+      }
+    }
+
+    // ========================================
+    // PARTICLE ANIMATION SYSTEM
+    // ========================================
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const particleCount = 30;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // ========================================
+    // MENU TOGGLE FUNCTIONALITY
+    // ========================================
+    function toggleMenu() {
+      const menu = document.getElementById('sideMenu');
+      const overlay = document.getElementById('menuOverlay');
+      menu.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    // ========================================
+    // AUTH MODAL MANAGEMENT
+    // ========================================
+    function showAuthModal(type) {
+      const modal = document.getElementById('authModal');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+
+      if (type === 'login') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+      } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+      }
+
+      modal.classList.add('show');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.remove('show');
+    }
+
+    // ========================================
+    // LOGIN HANDLER
+    // ========================================
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginBtn');
+
+      // Disable button and show loading
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span>';
+
+      try {
+        await initializeSupabase();
+
+        // Query user from database
+        const { data, error } = await supabase
+          .from('heartlogin')
+          .select('*')
+          .eq('email', email)
+          .eq('password', password)
+          .single();
+
+        if (error || !data) {
+          throw new Error('Invalid email or password');
+        }
+
+        // Store user session
+        localStorage.setItem('heartai_user', JSON.stringify(data));
+        localStorage.setItem('heartai_logged_in', 'true');
+
+        // Success notification
+        alert('Login successful! Welcome back.');
+        closeAuthModal();
+        
+        // Redirect to profile
+        setTimeout(() => {
+          window.location.href = 'profile.html';
+        }, 500);
+
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Login failed: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Login';
+      }
+    }
+
+    // ========================================
+    // REGISTER HANDLER
+    // ========================================
+    async function handleRegister(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('registerName').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const mobile = document.getElementById('registerMobile').value.trim();
+      const gender = document.getElementById('registerGender').value;
+      const birthdate = document.getElementById('registerBirthdate').value;
+      const password = document.getElementById('registerPassword').value;
+      const btn = document.getElementById('registerBtn');
+
+      // Validation
+      if (password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span>';
+
+      try {
+        await initializeSupabase();
+
+        // Check if email already exists
+        const { data: existing } = await supabase
+          .from('heartlogin')
+          .select('email')
+          .eq('email', email)
+          .single();
+
+        if (existing) {
+          throw new Error('Email already registered');
+        }
+
+        // Insert new user
+        const { error } = await supabase
+          .from('heartlogin')
+          .insert([{
+            email: email,
+            password: password,
+            full_name: name,
+            mobile: mobile,
+            gender: gender,
+            birthdate: birthdate || null,
+            avatar_url: null
+          }]);
+
+        if (error) throw error;
+
+        alert('Registration successful! Please login.');
+        showAuthModal('login');
+
+      } catch (error) {
+        console.error('Registration error:', error);
+        alert('Registration failed: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Register';
+      }
+    }
+
+    // ========================================
+    // LOGOUT HANDLER
+    // ========================================
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('heartai_user');
+        localStorage.removeItem('heartai_logged_in');
+        alert('Logged out successfully');
+        window.location.href = 'index.html';
+      }
+    }
+
+    // ========================================
+    // PWA INSTALLATION LOGIC
+    // ========================================
+    let deferredPrompt;
+    const installPrompt = document.getElementById('installPrompt');
+
+    // Check if already installed
+    function checkInstallStatus() {
+      const isInstalled = localStorage.getItem('heartai_installed');
+      const lastPrompt = localStorage.getItem('heartai_last_prompt');
+      const now = Date.now();
+
+      // If already installed, don't show prompt
+      if (isInstalled === 'true') {
+        return;
+      }
+
+      // Show prompt if never shown or twice per day
+      if (!lastPrompt || (now - parseInt(lastPrompt)) > 43200000) { // 12 hours
+        setTimeout(() => {
+          installPrompt.classList.add('show');
+        }, 3000);
+      }
+    }
+
+    // Capture beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      checkInstallStatus();
+    });
+
+    // Install PWA
+    async function installPWA() {
+      if (!deferredPrompt) {
+        alert('Installation not available on this device');
+        return;
+      }
+
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+
+      if (outcome === 'accepted') {
+        localStorage.setItem('heartai_installed', 'true');
+        installPrompt.classList.remove('show');
+      }
+
+      deferredPrompt = null;
+    }
+
+    // Later button
+    function laterPWA() {
+      localStorage.setItem('heartai_last_prompt', Date.now().toString());
+      installPrompt.classList.remove('show');
+
+      // Schedule next prompt in 12 hours
+      setTimeout(() => {
+        installPrompt.classList.add('show');
+      }, 43200000);
+    }
+
+    // Detect if app is installed
+    window.addEventListener('appinstalled', () => {
+      localStorage.setItem('heartai_installed', 'true');
+      installPrompt.classList.remove('show');
+    });
+
+    // Check if running in standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      localStorage.setItem('heartai_installed', 'true');
+    }
+
+    // ========================================
+    // VERSION CHECK & AUTO-UPDATE
+    // ========================================
+    async function checkForUpdates() {
+      try {
+        const response = await fetch('version.json?' + Date.now());
+        const data = await response.json();
+        const currentVersion = localStorage.getItem('app_version') || '1.0.0';
+
+        if (data.version !== currentVersion) {
+          console.log('New version available:', data.version);
+          
+          // Update service worker
+          if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.getRegistration();
+            if (registration) {
+              await registration.update();
+              localStorage.setItem('app_version', data.version);
+              
+              // Optionally reload after update
+              if (confirm('New version available. Reload now?')) {
+                window.location.reload(true);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Version check failed:', error);
+      }
+    }
+
+    // ========================================
+    // NOTIFICATION PERMISSION
+    // ========================================
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        setTimeout(() => {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              new Notification('Heart AI', {
+                body: 'Notifications enabled! Stay updated on your health.',
+                icon: 'icon-192.png'
+              });
+            }
+          });
+        }, 5000);
+      }
+    }
+
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      initializeSupabase();
+      createParticles();
+      checkInstallStatus();
+      checkForUpdates();
+      requestNotificationPermission();
+
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered:', reg))
+          .catch(err => console.error('Service Worker registration failed:', err));
+      }
+    });
+
+    // Periodic version check (every 30 minutes)
+    setInterval(checkForUpdates, 1800000);
+  </script>
+</body>
+</html>

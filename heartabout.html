@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <title>Heart AI — About</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <style>
+    body { font-family:'Segoe UI',Arial,sans-serif; background:linear-gradient(135deg,#000,#050510 60%,#0A3B7B 100%); color:#fff; min-height:100vh; margin:0; }
+    .particles { position:fixed; width:100%; height:100%; left:0; top:0; z-index:0; pointer-events:none;}
+    .particle { position:absolute; width:3px; height:3px; background:#1E90FF; border-radius:50%; opacity:0.25; animation:float 16s infinite;}
+    @keyframes float{0%,100%{transform:translateY(0)} 50%{transform:translateY(-100px)}}
+    main { margin-top:80px; margin-bottom:90px; padding:24px 12px; max-width:412px; margin-left:auto; margin-right:auto; position:relative; z-index:1;}
+    h1 { font-size:2em; background:linear-gradient(90deg,#fff,#1E90FF); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .credits { margin:30px 0 16px; padding:20px; background:rgba(10,59,123,0.15); border-radius:15px; color:#1E90FF;}
+    section { background:rgba(255,255,255,0.05); border-radius:12px; padding:18px;margin-bottom:24px; }
+    .b {color:#1E90FF;}
+    .footer-text { text-align:center; margin-top:38px; opacity:0.7; font-size:0.95em;}
+    .header-btns { display:flex; gap:10px; position:fixed; top:0; left:0; width:100%; height:60px; background:rgba(0,0,0,0.88); border-bottom:1px solid #fff2; align-items:center;padding:0 20px; z-index:999;}
+    .header-btn { padding:7px 15px; background:rgba(10,59,123,.13); border:1px solid #fff2; border-radius:7px; color:#fff; text-decoration:none; font-size:0.95em; transition:.2s;}
+    .header-btn:hover { background:rgba(30,144,255,.2);}
+    .taskbar-btn { display:flex; flex-direction:column; align-items:center; color:#fff; flex:1; text-decoration:none; height:100%; }
+    .taskbar-btn:hover { color:#1E90FF; background:rgba(30,144,255,.1);}
+    .bottom-taskbar { position:fixed; bottom:0; left:0; right:0; height:70px; background:rgba(0,0,0,0.95); border-top:1px solid #fff1; display:flex; z-index:999;
+      justify-content:space-around; align-items:center;}
+    .taskbar-icon { font-size:1.45em;}
+    .taskbar-label { font-size:0.81em;}
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  <div class="header-btns">
+    <a href="index.html" class="header-btn">🏠 Home</a>
+    <a href="BMI.html" class="header-btn">📊 BMI</a>
+    <a href="profile.html" class="header-btn">👤 Profile</a>
+  </div>
+  <main>
+    <h1>About Heart AI</h1>
+    <div class="credits">
+      Project By 1) Mariya Patel 2) Deepika Jangam 3) Inzila Shaikh
+    </div>
+    <section>
+      <b class="b">Purpose:</b> Heart AI offers simple, accurate heart disease prediction and BMI calculation for everyone.<br>
+      We use modern AI/ML, and a secure Supabase backend for user management and profile data.
+    </section>
+    <section>
+      <b class="b">Technology:</b>
+      <ul>
+        <li>Vanilla JavaScript (no frameworks)</li>
+        <li>Mobile-first, responsive dark UI</li>
+        <li>PWA install - offline first, auto updates, version checks</li>
+        <li>Supabase (Postgres) backend for user/db operations</li>
+        <li>BMI & prediction history stored locally and/or server</li>
+      </ul>
+    </section>
+    <section>
+      <b class="b">Credits:</b>
+      <ul>
+        <li>All UI, code & features were developed by the project authors listed above.</li>
+        <li>More info: See README / source code.</li>
+      </ul>
+    </section>
+    <div class="footer-text">
+      PWA compatible • Futuristic AI Health Dashboard • Responsive for ≤412px screens
+    </div>
+  </main>
+  <nav class="bottom-taskbar">
+    <a href="index.html" class="taskbar-btn"><div class="taskbar-icon">🏠</div><div class="taskbar-label">HOME</div></a>
+    <a href="BMI.html" class="taskbar-btn"><div class="taskbar-icon">📊</div><div class="taskbar-label">BMI</div></a>
+    <a href="profile.html" class="taskbar-btn"><div class="taskbar-icon">👤</div><div class="taskbar-label">PROFILE</div></a>
+  </nav>
+  <script>
+    function createParticles(){const c=document.getElementById('particles'); for(let i=0;i<20;i++){
+      const p=document.createElement('div');p.className='particle';
+      p.style.left=(Math.random()*100)+'%';p.style.top=(Math.random()*100)+'%';
+      p.style.animationDelay=(Math.random()*18)+'s';c.appendChild(p);
+    }}
+    window.addEventListener('DOMContentLoaded',createParticles);
+  </script>
+</body>
+</html>

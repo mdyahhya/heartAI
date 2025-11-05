@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Heart AI - Advanced BMI Calculator with History Tracking">
+  
+  <title>Heart AI - BMI Calculator</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black-primary: #000000;
+      --black-secondary: #050510;
+      --blue-deep: #0A3B7B;
+      --blue-neon: #1E90FF;
+      --white-primary: #FFFFFF;
+      --glass-bg: rgba(10, 59, 123, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --shadow-glow: 0 0 20px rgba(30, 144, 255, 0.3);
+      --transition-fast: 0.3s ease;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--black-primary) 0%, var(--black-secondary) 50%, var(--blue-deep) 100%);
+      color: var(--white-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--blue-neon);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(-150px) translateX(100px); }
+    }
+
+    .top-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .header-title {
+      font-size: 1.4em;
+      font-weight: bold;
+      background: linear-gradient(135deg, var(--blue-neon), var(--white-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .header-btn {
+      padding: 8px 15px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--white-primary);
+      text-decoration: none;
+      font-size: 0.85em;
+      transition: all var(--transition-fast);
+    }
+
+    .header-btn:hover {
+      background: rgba(30, 144, 255, 0.2);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .main-content {
+      margin-top: 80px;
+      margin-bottom: 90px;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 2.2em;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, var(--white-primary), var(--blue-neon));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .project-credits {
+      text-align: center;
+      font-size: 0.9em;
+      margin-bottom: 30px;
+      opacity: 0.8;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+
+    @media (min-width: 768px) {
+      .grid-layout {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .bmi-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 30px 25px;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .card-title {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: var(--blue-neon);
+      text-align: center;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95em;
+      color: var(--blue-neon);
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-field {
+      flex: 1;
+      padding: 12px 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      color: var(--white-primary);
+      font-size: 1em;
+      transition: all var(--transition-fast);
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--blue-neon);
+      box-shadow: 0 0 15px rgba(30, 144, 255, 0.3);
+    }
+
+    .unit-select {
+      width: 90px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      color: var(--white-primary);
+      font-size: 1em;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .unit-select:focus {
+      outline: none;
+      border-color: var(--blue-neon);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue-neon), var(--blue-deep));
+      color: var(--white-primary);
+    }
+
+    .btn-primary:hover {
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white-primary);
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .result-display {
+      margin-top: 25px;
+      padding: 20px;
+      background: rgba(30, 144, 255, 0.1);
+      border: 2px solid var(--blue-neon);
+      border-radius: 15px;
+      text-align: center;
+      display: none;
+    }
+
+    .result-display.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .bmi-value {
+      font-size: 3em;
+      font-weight: bold;
+      color: var(--blue-neon);
+      margin-bottom: 10px;
+    }
+
+    .bmi-category {
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+
+    .bmi-range {
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    .category-underweight { color: #4FC3F7; }
+    .category-normal { color: #66BB6A; }
+    .category-overweight { color: #FFA726; }
+    .category-obese { color: #EF5350; }
+
+    .history-panel {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .history-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      transition: all var(--transition-fast);
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--blue-neon);
+    }
+
+    .history-date {
+      font-size: 0.85em;
+      color: var(--blue-neon);
+      margin-bottom: 5px;
+    }
+
+    .history-data {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .history-bmi {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    .empty-history {
+      text-align: center;
+      padding: 40px 20px;
+      opacity: 0.6;
+    }
+
+    .bottom-taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .taskbar-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: var(--white-primary);
+      transition: all var(--transition-fast);
+      flex: 1;
+      height: 100%;
+      justify-content: center;
+    }
+
+    .taskbar-btn:hover {
+      color: var(--blue-neon);
+      background: rgba(30, 144, 255, 0.1);
+    }
+
+    .taskbar-icon {
+      font-size: 1.5em;
+      margin-bottom: 5px;
+    }
+
+    .taskbar-label {
+      font-size: 0.75em;
+    }
+
+    .footer-text {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.85em;
+      opacity: 0.7;
+      margin-top: 30px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--blue-neon);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 412px) {
+      .page-title {
+        font-size: 1.8em;
+      }
+
+      .bmi-card {
+        padding: 20px 15px;
+      }
+
+      .bmi-value {
+        font-size: 2.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Top Header -->
+  <header class="top-header">
+    <div class="header-title">Heart AI — BMI Calculator</div>
+    <div class="header-buttons">
+      <a href="index.html" class="header-btn">🏠 Home</a>
+      <a href="profile.html" class="header-btn">👤 Profile</a>
+      <a href="about.html" class="header-btn">ℹ️ About</a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <h1 class="page-title">BMI Calculator</h1>
+      <p class="project-credits">
+        Project By<br>
+        1) Mariya Patel &nbsp; 2) Deepika Jangam &nbsp; 3) Inzila Shaikh
+      </p>
+
+      <div class="grid-layout">
+        <!-- BMI Calculator Card -->
+        <div class="bmi-card">
+          <h2 class="card-title">📊 Calculate Your BMI</h2>
+
+          <div class="input-group">
+            <label class="input-label">Height</label>
+            <div class="input-wrapper">
+              <input type="number" class="input-field" id="heightInput" placeholder="Enter height" step="0.01" min="0">
+              <select class="unit-select" id="heightUnit">
+                <option value="cm">cm</option>
+                <option value="m">m</option>
+                <option value="ft">ft</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Weight</label>
+            <div class="input-wrapper">
+              <input type="number" class="input-field" id="weightInput" placeholder="Enter weight" step="0.01" min="0">
+              <select class="unit-select" id="weightUnit">
+                <option value="kg">kg</option>
+                <option value="lb">lb</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button class="btn btn-primary" onclick="calculateBMI()">Calculate</button>
+            <button class="btn btn-secondary" onclick="clearInputs()">Clear</button>
+          </div>
+
+          <div class="result-display" id="resultDisplay">
+            <div class="bmi-value" id="bmiValue">--</div>
+            <div class="bmi-category" id="bmiCategory">--</div>
+            <div class="bmi-range" id="bmiRange">--</div>
+            <div class="button-group" style="margin-top: 15px;">
+              <button class="btn btn-primary" onclick="saveToHistory()">💾 Save Entry</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BMI History Card -->
+        <div class="bmi-card">
+          <h2 class="card-title">📜 BMI History</h2>
+          
+          <div class="history-controls">
+            <button class="btn btn-secondary" onclick="clearHistory()" style="flex: 0 0 auto;">🗑️ Clear</button>
+            <button class="btn btn-secondary" onclick="exportHistory()" style="flex: 0 0 auto;">📥 Export</button>
+          </div>
+
+          <div class="history-panel" id="historyPanel">
+            <div class="empty-history">
+              📊 No BMI calculations yet.<br>
+              Calculate your BMI to see history here.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-text">
+        Dark AI Theme • Uses localStorage for BMI history • Responsive for ≤412px screens
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Taskbar -->
+  <nav class="bottom-taskbar">
+    <a href="index.html" class="taskbar-btn">
+      <div class="taskbar-icon">🏠</div>
+      <div class="taskbar-label">HOME</div>
+    </a>
+    <a href="profile.html" class="taskbar-btn">
+      <div class="taskbar-icon">👤</div>
+      <div class="taskbar-label">PROFILE</div>
+    </a>
+    <a href="about.html" class="taskbar-btn">
+      <div class="taskbar-icon">ℹ️</div>
+      <div class="taskbar-label">ABOUT</div>
+    </a>
+  </nav>
+
+  <script>
+    // ========================================
+    // SUPABASE CONFIGURATION
+    // ========================================
+    const SUPABASE_URL = 'https://ktqwhwzbxyoplawjmbao.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZdRF5ogFMTqeijKas';
+    let supabase;
+
+    function initializeSupabase() {
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log('✓ Supabase initialized');
+        return true;
+      } catch (error) {
+        console.error('✗ Supabase initialization failed:', error);
+        return false;
+      }
+    }
+
+    // ========================================
+    // PARTICLE ANIMATION
+    // ========================================
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const particleCount = 25;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // ========================================
+    // BMI CALCULATION
+    // ========================================
+    let currentBMI = null;
+    let currentHeight = null;
+    let currentWeight = null;
+    let currentHeightUnit = null;
+    let currentWeightUnit = null;
+
+    function calculateBMI() {
+      const heightInput = parseFloat(document.getElementById('heightInput').value);
+      const weightInput = parseFloat(document.getElementById('weightInput').value);
+      const heightUnit = document.getElementById('heightUnit').value;
+      const weightUnit = document.getElementById('weightUnit').value;
+
+      // Validation
+      if (!heightInput || heightInput <= 0) {
+        alert('Please enter a valid height');
+        return;
+      }
+
+      if (!weightInput || weightInput <= 0) {
+        alert('Please enter a valid weight');
+        return;
+      }
+
+      // Store original values
+      currentHeight = heightInput;
+      currentWeight = weightInput;
+      currentHeightUnit = heightUnit;
+      currentWeightUnit = weightUnit;
+
+      // Convert height to meters
+      let heightInMeters;
+      switch (heightUnit) {
+        case 'cm':
+          heightInMeters = heightInput / 100;
+          break;
+        case 'm':
+          heightInMeters = heightInput;
+          break;
+        case 'ft':
+          heightInMeters = heightInput * 0.3048;
+          break;
+        default:
+          heightInMeters = heightInput;
+      }
+
+      // Convert weight to kg
+      let weightInKg;
+      switch (weightUnit) {
+        case 'kg':
+          weightInKg = weightInput;
+          break;
+        case 'lb':
+          weightInKg = weightInput * 0.453592;
+          break;
+        default:
+          weightInKg = weightInput;
+      }
+
+      // Calculate BMI: weight / (height * height)
+      const bmi = weightInKg / (heightInMeters * heightInMeters);
+      currentBMI = Math.round(bmi * 100) / 100;
+
+      // Determine category
+      let category, categoryClass, range;
+      if (bmi < 18.5) {
+        category = 'Underweight';
+        categoryClass = 'category-underweight';
+        range = 'BMI < 18.5';
+      } else if (bmi >= 18.5 && bmi < 25) {
+        category = 'Normal Weight';
+        categoryClass = 'category-normal';
+        range = '18.5 ≤ BMI < 25';
+      } else if (bmi >= 25 && bmi < 30) {
+        category = 'Overweight';
+        categoryClass = 'category-overweight';
+        range = '25 ≤ BMI < 30';
+      } else {
+        category = 'Obese';
+        categoryClass = 'category-obese';
+        range = 'BMI ≥ 30';
+      }
+
+      // Display results
+      document.getElementById('bmiValue').textContent = currentBMI;
+      document.getElementById('bmiCategory').textContent = category;
+      document.getElementById('bmiCategory').className = 'bmi-category ' + categoryClass;
+      document.getElementById('bmiRange').textContent = range;
+      document.getElementById('resultDisplay').classList.add('show');
+    }
+
+    // ========================================
+    // SAVE TO HISTORY
+    // ========================================
+    function saveToHistory() {
+      if (currentBMI === null) {
+        alert('Please calculate BMI first');
+        return;
+      }
+
+      const history = getBMIHistory();
+      const entry = {
+        timestamp: new Date().toISOString(),
+        height: currentHeight,
+        heightUnit: currentHeightUnit,
+        weight: currentWeight,
+        weightUnit: currentWeightUnit,
+        bmi: currentBMI,
+        category: document.getElementById('bmiCategory').textContent
+      };
+
+      history.unshift(entry); // Add to beginning
+
+      // Keep only last 50 entries
+      if (history.length > 50) {
+        history.splice(50);
+      }
+
+      localStorage.setItem('heartai_bmi_history', JSON.stringify(history));
+      displayHistory();
+      alert('BMI entry saved to history!');
+    }
+
+    // ========================================
+    // GET BMI HISTORY
+    // ========================================
+    function getBMIHistory() {
+      const stored = localStorage.getItem('heartai_bmi_history');
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    // ========================================
+    // DISPLAY HISTORY
+    // ========================================
+    function displayHistory() {
+      const history = getBMIHistory();
+      const panel = document.getElementById('historyPanel');
+
+      if (history.length === 0) {
+        panel.innerHTML = `
+          <div class="empty-history">
+            📊 No BMI calculations yet.<br>
+            Calculate your BMI to see history here.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      history.forEach((entry, index) => {
+        const date = new Date(entry.timestamp);
+        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        
+        let categoryClass = '';
+        if (entry.category.includes('Underweight')) categoryClass = 'category-underweight';
+        else if (entry.category.includes('Normal')) categoryClass = 'category-normal';
+        else if (entry.category.includes('Overweight')) categoryClass = 'category-overweight';
+        else if (entry.category.includes('Obese')) categoryClass = 'category-obese';
+
+        html += `
+          <div class="history-item">
+            <div class="history-date">${dateStr}</div>
+            <div class="history-data">
+              <div>
+                <strong>Height:</strong> ${entry.height} ${entry.heightUnit} &nbsp;
+                <strong>Weight:</strong> ${entry.weight} ${entry.weightUnit}
+              </div>
+              <div class="history-bmi ${categoryClass}">
+                ${entry.bmi} - ${entry.category}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      panel.innerHTML = html;
+    }
+
+    // ========================================
+    // CLEAR INPUTS
+    // ========================================
+    function clearInputs() {
+      document.getElementById('heightInput').value = '';
+      document.getElementById('weightInput').value = '';
+      document.getElementById('resultDisplay').classList.remove('show');
+      currentBMI = null;
+      currentHeight = null;
+      currentWeight = null;
+    }
+
+    // ========================================
+    // CLEAR HISTORY
+    // ========================================
+    function clearHistory() {
+      if (confirm('Are you sure you want to clear all BMI history?')) {
+        localStorage.removeItem('heartai_bmi_history');
+        displayHistory();
+        alert('History cleared!');
+      }
+    }
+
+    // ========================================
+    // EXPORT HISTORY
+    // ========================================
+    function exportHistory() {
+      const history = getBMIHistory();
+      
+      if (history.length === 0) {
+        alert('No history to export');
+        return;
+      }
+
+      const dataStr = JSON.stringify(history, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'bmi-history-' + new Date().toISOString().split('T')[0] + '.json';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      alert('History exported successfully!');
+    }
+
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      initializeSupabase();
+      createParticles();
+      displayHistory();
+    });
+  </script>
+</body>
+</html>
