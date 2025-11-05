@@ -2,7 +2,7 @@
   "name": "Heart AI",
   "short_name": "HeartAI",
   "description": "Futuristic PWA for Heart Disease Prediction & BMI Calculator",
-  "start_url": "index.html",
+  "start_url": "/",
   "scope": "./",
   "display": "standalone",
   "background_color": "#000000",
