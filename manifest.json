@@ -1,13 +1,27 @@
 {
-  "name": "Heart AI - Disease Prediction",
-  "short_name": "HeartAI",
-  "description": "AI-powered heart disease prediction and BMI calculator",
+  "name": "Heart AI - Coronary Artery Disease Prediction System",
+  "short_name": "Heart AI",
+  "description": "Advanced AI-powered heart disease risk assessment and prediction",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#0A3B7B",
-  "orientation": "portrait",
+  "background_color": "#0f1419",
+  "theme_color": "#1a365d",
+  "orientation": "portrait-primary",
+  "screenshots": [
+    {
+      "src": "heart.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "heart.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
   "icons": [
     {
       "src": "heart.png",
