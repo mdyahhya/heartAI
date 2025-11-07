@@ -6,10 +6,13 @@
   <meta name="theme-color" content="#1a365d">
   <meta name="description" content="Heart AI - Advanced Coronary Artery Disease Prediction System">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <title>Heart AI - CAD Prediction System</title>
   
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
@@ -78,11 +81,56 @@
       font-weight: bold;
       cursor: pointer;
       transition: all var(--transition);
+      font-size: 0.9em;
     }
 
     .btn-header:hover {
       background: #0088aa;
       transform: translateY(-2px);
+    }
+
+    /* ========================================
+       INSTALL APP BANNER
+       ======================================== */
+    .install-banner {
+      display: none;
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      color: var(--primary);
+      padding: 12px 20px;
+      text-align: center;
+      font-weight: bold;
+      animation: slideDown 0.3s ease;
+    }
+
+    .install-banner.show {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .install-banner button {
+      background: var(--primary);
+      color: var(--accent);
+      border: none;
+      padding: 8px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 15px;
+      transition: all var(--transition);
+    }
+
+    .install-banner button:hover {
+      transform: scale(1.05);
     }
 
     /* ========================================
@@ -264,6 +312,84 @@
     }
 
     /* ========================================
+       PWA PROMPT MODAL
+       ======================================== */
+    .pwa-prompt {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 400px;
+      box-shadow: 0 10px 40px rgba(0, 168, 204, 0.3);
+      z-index: 999;
+      display: none;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .pwa-prompt.show {
+      display: block;
+    }
+
+    .pwa-prompt h3 {
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .pwa-prompt p {
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+      font-size: 0.9em;
+    }
+
+    .pwa-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pwa-buttons button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .btn-install-pwa {
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      color: var(--primary);
+    }
+
+    .btn-install-pwa:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-later-pwa {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    .btn-later-pwa:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* ========================================
        RESPONSIVE
        ======================================== */
     @media (max-width: 768px) {
@@ -278,6 +404,19 @@
       main {
         padding: 20px 15px;
       }
+
+      header {
+        flex-wrap: wrap;
+      }
+
+      .header-buttons {
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .btn-header {
+        flex: 1;
+      }
     }
   </style>
 </head>
@@ -290,6 +429,12 @@
       <button class="btn-header" onclick="showAuthModal('register')">Register</button>
     </div>
   </header>
+
+  <!-- Install App Banner -->
+  <div class="install-banner" id="installBanner">
+    📱 Install Heart AI as an app for offline access and better experience!
+    <button onclick="installAppNow()">Install Now</button>
+  </div>
 
   <!-- Main Content -->
   <main>
@@ -332,6 +477,16 @@
       </div>
     </div>
   </main>
+
+  <!-- PWA Install Prompt -->
+  <div class="pwa-prompt" id="pwaPrompt">
+    <h3>📱 Install Heart AI</h3>
+    <p>Get offline access and native app experience. Tap to install!</p>
+    <div class="pwa-buttons">
+      <button class="btn-install-pwa" onclick="installPWANow()">Install</button>
+      <button class="btn-later-pwa" onclick="laterPWA()">Later</button>
+    </div>
+  </div>
 
   <!-- Auth Modal -->
   <div class="modal" id="authModal">
@@ -396,6 +551,9 @@
   </div>
 
   <script>
+    // ========================================
+    // SUPABASE CONFIGURATION
+    // ========================================
     const SUPABASE_URL = 'https://ktqwhwzbxyoplawjmbao.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZdRF5ogFMTqeijKas';
     let supabase;
@@ -403,13 +561,163 @@
     function initializeSupabase() {
       try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log('✓ Supabase initialized');
         return true;
       } catch (error) {
-        console.error('Supabase failed:', error);
+        console.error('✗ Supabase failed:', error);
         return false;
       }
     }
 
+    // ========================================
+    // PWA INSTALLATION LOGIC
+    // ========================================
+    let deferredPrompt = null;
+
+    // Capture beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('✓ beforeinstallprompt event fired - PWA is installable');
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Show install banner if not already installed
+      checkAndShowInstallPrompt();
+    });
+
+    // Check install status and show prompts accordingly
+    function checkAndShowInstallPrompt() {
+      const isInstalled = localStorage.getItem('heartai_pwa_installed');
+      const lastPromptTime = localStorage.getItem('heartai_last_prompt_time');
+      const now = Date.now();
+
+      // If already installed, hide both banners
+      if (isInstalled === 'true') {
+        document.getElementById('installBanner').classList.remove('show');
+        document.getElementById('pwaPrompt').classList.remove('show');
+        return;
+      }
+
+      // Show install banner if this is first time or 12 hours have passed
+      if (!lastPromptTime || (now - parseInt(lastPromptTime)) > 43200000) {
+        document.getElementById('installBanner').classList.add('show');
+        
+        // Also show modal prompt after 5 seconds
+        setTimeout(() => {
+          if (deferredPrompt && isInstalled !== 'true') {
+            document.getElementById('pwaPrompt').classList.add('show');
+          }
+        }, 5000);
+      }
+    }
+
+    // Install app when clicking the banner button
+    async function installAppNow() {
+      if (!deferredPrompt) {
+        alert('Installation not available. Please try again later or use a supported browser.');
+        return;
+      }
+
+      // Hide banner first
+      document.getElementById('installBanner').classList.remove('show');
+      
+      // Show the browser install prompt
+      deferredPrompt.prompt();
+
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`Installation prompt outcome: ${outcome}`);
+
+      if (outcome === 'accepted') {
+        console.log('✓ PWA installation accepted');
+        localStorage.setItem('heartai_pwa_installed', 'true');
+        document.getElementById('pwaPrompt').classList.remove('show');
+        alert('Heart AI has been installed! You can now access it from your home screen or app drawer.');
+      } else {
+        console.log('✗ Installation dismissed');
+        localStorage.setItem('heartai_last_prompt_time', Date.now().toString());
+      }
+
+      deferredPrompt = null;
+    }
+
+    // Install PWA from modal prompt
+    async function installPWANow() {
+      if (!deferredPrompt) {
+        alert('Installation not available. Please try again later or use a supported browser (Chrome, Edge, Samsung Internet).');
+        return;
+      }
+
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+
+      if (outcome === 'accepted') {
+        console.log('✓ PWA installed successfully');
+        localStorage.setItem('heartai_pwa_installed', 'true');
+        document.getElementById('pwaPrompt').classList.remove('show');
+        document.getElementById('installBanner').classList.remove('show');
+        alert('✓ Heart AI installed successfully! Check your home screen or app drawer.');
+      } else {
+        localStorage.setItem('heartai_last_prompt_time', Date.now().toString());
+      }
+
+      deferredPrompt = null;
+    }
+
+    // Later button - hide prompt for 12 hours
+    function laterPWA() {
+      document.getElementById('pwaPrompt').classList.remove('show');
+      localStorage.setItem('heartai_last_prompt_time', Date.now().toString());
+      console.log('PWA prompt dismissed - will show again in 12 hours');
+    }
+
+    // Detect if app was installed
+    window.addEventListener('appinstalled', () => {
+      console.log('✓ PWA successfully installed');
+      localStorage.setItem('heartai_pwa_installed', 'true');
+      document.getElementById('installBanner').classList.remove('show');
+      document.getElementById('pwaPrompt').classList.remove('show');
+    });
+
+    // Check if running as PWA
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      console.log('✓ App is running as installed PWA');
+      localStorage.setItem('heartai_pwa_installed', 'true');
+      document.getElementById('installBanner').classList.remove('show');
+      document.getElementById('pwaPrompt').classList.remove('show');
+    }
+
+    // Monitor uninstall
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    mediaQuery.addListener((e) => {
+      if (!e.matches) {
+        console.log('PWA appears to have been uninstalled');
+        localStorage.removeItem('heartai_pwa_installed');
+        localStorage.removeItem('heartai_last_prompt_time');
+      }
+    });
+
+    // ========================================
+    // SERVICE WORKER REGISTRATION
+    // ========================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('✓ Service Worker registered:', registration.scope);
+            
+            // Check for updates regularly
+            setInterval(() => {
+              registration.update();
+            }, 60000); // Check every minute
+          })
+          .catch(error => {
+            console.error('✗ Service Worker registration failed:', error);
+          });
+      });
+    }
+
+    // ========================================
+    // AUTH FUNCTIONS
+    // ========================================
     function showAuthModal(type) {
       const modal = document.getElementById('authModal');
       const loginForm = document.getElementById('loginForm');
@@ -480,6 +788,16 @@
       try {
         await initializeSupabase();
 
+        const { data: existing } = await supabase
+          .from('heartlogin')
+          .select('email')
+          .eq('email', email)
+          .single();
+
+        if (existing) {
+          throw new Error('Email already registered');
+        }
+
         const { error } = await supabase
           .from('heartlogin')
           .insert([{
@@ -516,8 +834,14 @@
       }
     }
 
+    // ========================================
+    // INITIALIZATION
+    // ========================================
     window.addEventListener('DOMContentLoaded', () => {
+      console.log('=== Heart AI Initializing ===');
       initializeSupabase();
+      checkAndShowInstallPrompt();
+      console.log('✓ Heart AI ready');
     });
   </script>
 </body>
