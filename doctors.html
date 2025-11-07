@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart AI - Doctors & Specialists</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1a365d;
+      --accent: #00a8cc;
+      --bg-dark: #0f1419;
+      --bg-card: #1a2332;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b8c1;
+      --border: #2d3748;
+      --danger: #e74c3c;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 1.5em;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .btn-back {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+      background: #0088aa;
+    }
+
+    .page-title {
+      font-size: 2.2em;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+
+    .doctors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .doctor-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 15px;
+      padding: 25px;
+      transition: all 0.3s;
+    }
+
+    .doctor-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 40px rgba(0, 168, 204, 0.3);
+    }
+
+    .doctor-icon {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+
+    .doctor-name {
+      font-size: 1.3em;
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .doctor-info {
+      margin: 15px 0;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .doctor-info label {
+      display: block;
+      font-size: 0.85em;
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .doctor-info value {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.95em;
+    }
+
+    .doctor-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .btn-call {
+      flex: 1;
+      min-width: 120px;
+      padding: 10px 15px;
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9em;
+    }
+
+    .btn-call:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-map {
+      flex: 1;
+      min-width: 120px;
+      padding: 10px 15px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9em;
+    }
+
+    .btn-map:hover {
+      background: rgba(0, 168, 204, 0.2);
+      border-color: var(--accent);
+    }
+
+    .hours-list {
+      font-size: 0.9em;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .filter-section {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .filter-btn {
+      padding: 8px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      cursor: pointer;
+      margin: 5px;
+      transition: all 0.2s;
+      font-weight: bold;
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: var(--primary);
+      border-color: var(--accent);
+    }
+
+    .filter-btn:hover {
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .doctors-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-title {
+        font-size: 1.8em;
+      }
+
+      .doctor-buttons {
+        flex-direction: column;
+      }
+
+      .btn-call,
+      .btn-map {
+        min-width: auto;
+      }
+
+      header {
+        flex-wrap: wrap;
+      }
+
+      .logo {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">❤️ Heart AI - Doctors</div>
+      <button class="btn-back" onclick="window.location.href='index.html'">← Back</button>
+    </header>
+
+    <h1 class="page-title">🏥 Heart Specialists in Solapur</h1>
+    <p class="page-subtitle">Find and contact recommended cardiologists and heart care centers</p>
+
+    <div id="doctorsContainer" class="doctors-grid"></div>
+  </div>
+
+  <script>
+    const doctors = [
+      {
+        name: "Janani Heart Care Clinic",
+        phone: "+91 84838 09472",
+        hours: [
+          "Mon-Wed: 11:00 AM - 8:00 PM",
+          "Thu: 7:00 AM - 8:00 PM",
+          "Fri-Sat: 11:00 AM - 8:00 PM",
+          "Sun: Closed"
+        ],
+        map: "https://maps.google.com/?q=Janani+Heart+Care+Clinic+Solapur",
+        icon: "🏥"
+      },
+      {
+        name: "Dr. Gurunath Parale - Spandan Cardiac Diagnostic Centre",
+        phone: "+91 217 231 3979",
+        hours: [
+          "Mon-Fri: 12:00 PM - 7:00 PM",
+          "Sat: 12:00 PM - 4:00 PM",
+          "Sun: Closed"
+        ],
+        map: "https://maps.google.com/?q=Spandan+Cardiac+Diagnostic+Centre+Solapur",
+        icon: "👨‍⚕️"
+      },
+      {
+        name: "Dr. Anupam Shah Heart Clinic",
+        phone: "+91 217 262 8877",
+        hours: [
+          "Mon-Fri: 1:00 PM - 5:00 PM",
+          "Mon-Fri: 6:00 PM - 8:00 PM",
+          "Sat: 1:00 PM - 5:00 PM",
+          "Sun: Closed"
+        ],
+        map: "https://maps.google.com/?q=Dr+Anupam+Shah+Heart+Clinic+Solapur",
+        icon: "👨‍⚕️"
+      },
+      {
+        name: "Dr. Shewale's Sai Heart & Maternity Care",
+        phone: "+91 74474 45121",
+        hours: [
+          "Mon-Sat: 10:00 AM - 8:00 PM",
+          "Sun: Closed"
+        ],
+        map: "https://maps.google.com/?q=Sai+Heart+Maternity+Care+Solapur",
+        icon: "🏥"
+      },
+      {
+        name: "Samruddhi Heart Care",
+        phone: "+91 82751 57576",
+        hours: [
+          "Mon-Sat: 11:00 AM - 9:00 PM",
+          "Sun: Closed"
+        ],
+        map: "https://maps.google.com/?q=Samruddhi+Heart+Care+Solapur",
+        icon: "🏥"
+      }
+    ];
+
+    function loadDoctors() {
+      const container = document.getElementById('doctorsContainer');
+      
+      container.innerHTML = doctors.map((doctor, index) => `
+        <div class="doctor-card">
+          <div class="doctor-icon">${doctor.icon}</div>
+          <div class="doctor-name">${doctor.name}</div>
+          
+          <div class="doctor-info">
+            <label>📞 Phone Number</label>
+            <value>${doctor.phone}</value>
+          </div>
+          
+          <div class="doctor-info">
+            <label>🕐 Opening Hours</label>
+            <div class="hours-list">
+              ${doctor.hours.map(h => `<div>${h}</div>`).join('')}
+            </div>
+          </div>
+          
+          <div class="doctor-buttons">
+            <button class="btn-call" onclick="callDoctor('${doctor.phone}')">📞 Call Now</button>
+            <button class="btn-map" onclick="window.open('${doctor.map}', '_blank')">🗺️ Maps</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function callDoctor(phone) {
+      window.location.href = `tel:${phone}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadDoctors();
+    });
+  </script>
+</body>
+</html>
