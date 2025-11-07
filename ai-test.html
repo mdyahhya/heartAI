@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart AI - CAD Risk Assessment Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1a365d;
+      --accent: #00a8cc;
+      --bg-dark: #0f1419;
+      --bg-card: #1a2332;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b8c1;
+      --border: #2d3748;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --success: #27ae60;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 1.5em;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .btn-back {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-back:hover {
+      background: #0088aa;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      margin-bottom: 30px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #00d4ff);
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9em;
+    }
+
+    /* Form Sections */
+    .form-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+
+    .section-title {
+      font-size: 1.2em;
+      color: var(--accent);
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1em;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* MCQ Options */
+    .mcq-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mcq-option {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mcq-option:hover {
+      background: rgba(0, 168, 204, 0.1);
+      border-color: var(--accent);
+    }
+
+    .mcq-option input[type="radio"] {
+      cursor: pointer;
+    }
+
+    .mcq-option.selected {
+      background: rgba(0, 168, 204, 0.2);
+      border-color: var(--accent);
+    }
+
+    /* Live Results Panel */
+    .live-results {
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 25px;
+      position: sticky;
+      top: 20px;
+      margin-bottom: 30px;
+    }
+
+    .live-results h3 {
+      color: var(--accent);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .risk-meter {
+      margin-bottom: 25px;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+    }
+
+    .meter-bar {
+      height: 30px;
+      background: linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--danger) 100%);
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      background: rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      font-weight: bold;
+      transition: width 0.3s ease;
+    }
+
+    .risk-percentage {
+      text-align: center;
+      font-size: 2.5em;
+      color: var(--accent);
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .risk-category {
+      text-align: center;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    .risk-category.low {
+      background: rgba(39, 174, 96, 0.2);
+      color: var(--success);
+    }
+
+    .risk-category.medium {
+      background: rgba(243, 156, 18, 0.2);
+      color: var(--warning);
+    }
+
+    .risk-category.high {
+      background: rgba(231, 76, 60, 0.2);
+      color: var(--danger);
+    }
+
+    /* Buttons */
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0, 168, 204, 0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .live-results {
+        position: static;
+        margin-bottom: 30px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">❤️ Heart AI - CAD Test</div>
+      <button class="btn-back" onclick="window.location.href='index.html'">← Back</button>
+    </header>
+
+    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 25px;">
+      <!-- Main Form -->
+      <div>
+        <!-- Progress -->
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text">
+            Question <span id="currentQuestion">1</span> of <span id="totalQuestions">15</span>
+          </div>
+        </div>
+
+        <form id="testForm">
+          <!-- Personal Information Section -->
+          <div class="form-section">
+            <div class="section-title">📋 Personal Information</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div class="form-group">
+                <label>Age (years)</label>
+                <input type="number" id="age" min="18" max="100" required onchange="updateLiveResults()">
+              </div>
+
+              <div class="form-group">
+                <label>Gender</label>
+                <select id="gender" required onchange="updateLiveResults()">
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Height (cm)</label>
+                <input type="number" id="height" min="100" max="250" required onchange="updateLiveResults()">
+              </div>
+
+              <div class="form-group">
+                <label>Weight (kg)</label>
+                <input type="number" id="weight" min="30" max="200" required onchange="updateLiveResults()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Medical Parameters Section -->
+          <div class="form-section">
+            <div class="section-title">⚕️ Medical Parameters</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div class="form-group">
+                <label>Blood Pressure - Systolic (mmHg)</label>
+                <input type="number" id="bpSystolic" min="70" max="200" required onchange="updateLiveResults()">
+              </div>
+
+              <div class="form-group">
+                <label>Blood Pressure - Diastolic (mmHg)</label>
+                <input type="number" id="bpDiastolic" min="40" max="130" required onchange="updateLiveResults()">
+              </div>
+
+              <div class="form-group">
+                <label>Cholesterol Level (mg/dL)</label>
+                <input type="number" id="cholesterol" min="100" max="400" required onchange="updateLiveResults()">
+              </div>
+
+              <div class="form-group">
+                <label>Do you have Diabetes?</label>
+                <select id="diabetes" required onchange="updateLiveResults()">
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Smoking/Alcoholic Status</label>
+                <select id="smokingAlcohol" required onchange="updateLiveResults()">
+                  <option value="">Select</option>
+                  <option value="Never">Never</option>
+                  <option value="Former">Former</option>
+                  <option value="Current">Current</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Do you have Hypertension?</label>
+                <select id="hypertension" required onchange="updateLiveResults()">
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Symptom Questions Section -->
+          <div class="form-section">
+            <div class="section-title">❓ Symptom Assessment (15 Questions)</div>
+
+            <div id="questionsContainer"></div>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn-primary">Submit Test</button>
+            <button type="reset" class="btn-secondary">Clear Form</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Live Results Panel (Sticky) -->
+      <div class="live-results">
+        <h3>Live Results</h3>
+
+        <div class="risk-meter">
+          <div class="meter-label">
+            <span>Low</span>
+            <span id="riskPercentageDisplay">0%</span>
+            <span>High</span>
+          </div>
+          <div class="meter-bar">
+            <div class="meter-indicator" id="meterIndicator" style="width: 0%;">
+              <span id="meterText"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="risk-percentage" id="riskScore">0%</div>
+
+        <div class="risk-category low" id="riskCategory">
+          Low Risk
+        </div>
+
+        <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 15px;">
+          <p id="riskDescription">Complete the form to see risk assessment</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ktqwhwzbxyoplawjmbao.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZ
