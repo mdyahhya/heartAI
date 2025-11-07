@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart AI - Test Feedback</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1a365d;
+      --accent: #00a8cc;
+      --bg-dark: #0f1419;
+      --bg-card: #1a2332;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b8c1;
+      --border: #2d3748;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 1.5em;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .btn-back {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .form-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+
+    .section-title {
+      font-size: 1.2em;
+      color: var(--accent);
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .feedback-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feedback-option {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feedback-option:hover {
+      background: rgba(0, 168, 204, 0.1);
+      border-color: var(--accent);
+    }
+
+    .feedback-option.selected {
+      background: rgba(0, 168, 204, 0.2);
+      border-color: var(--accent);
+    }
+
+    .stars {
+      display: flex;
+      gap: 10px;
+    }
+
+    .star {
+      font-size: 2em;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.3);
+      transition: all 0.2s;
+    }
+
+    .star:hover,
+    .star.selected {
+      color: #ffc107;
+      transform: scale(1.2);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1em;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">❤️ Heart AI - Feedback</div>
+      <button class="btn-back" onclick="window.location.href='index.html'">← Home</button>
+    </header>
+
+    <form id="feedbackForm">
+      <!-- Question 1 -->
+      <div class="form-section">
+        <div class="section-title">1️⃣ How easy was it to find and input the required medical parameters?</div>
+        <div class="feedback-options">
+          <label class="feedback-option" onclick="selectFeedback(this)">
+            <input type="radio" name="ease_of_input" value="Very easy, all terms were clear." required>
+            <span>✓ Very easy, all terms were clear.</span>
+          </label>
+          <label class="feedback-option" onclick="selectFeedback(this)">
+            <input type="radio" name="ease_of_input" value="Mostly easy, but some terms were confusing.">
+            <span>~ Mostly easy, but some terms were confusing.</span>
+          </label>
+          <label class="feedback-option" onclick="selectFeedback(this)">
+            <input type="radio" name="ease_of_input" value="Difficult, I struggled to find the required data.">
+            <span>✗ Difficult, I struggled to find the required data.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="form-section">
+        <div class="section-title">2️⃣ Was the explanation provided with the final result clear and easy to understand?</div>
+        <div class="feedback-options">
+          <label class="feedback-option" onclick="selectFeedback(this)">
+            <input type="radio" name="explanation_clarity" value="Yes, very clear." required>
+            <span>✓ Yes, very clear.</span>
+          </label>
+          <label class="feedback-option" onclick="selectFeedback(this)">
+            <input type="radio" name="explanation_clarity" value="Acceptable, but could be clearer.">
+            <span>~ Acceptable, but could be clearer.</span>
+          </label>
+          <label class="feedback-option" onclick="selectFeedback(this)">
+            <input type="radio" name="explanation_clarity" value="No, the result/explanation was confusing.">
+            <span>✗ No, the result/explanation was confusing.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="form-section">
+        <div class="section-title">3️⃣ Overall, how satisfied are you with the website?</div>
+        <div class="form-group">
+          <div class="stars" id="starRating">
+            <span class="star" onclick="rateSatisfaction(1)" title="Very Dissatisfied">★</span>
+            <span class="star" onclick="rateSatisfaction(2)" title="Dissatisfied">★</span>
+            <span class="star" onclick="rateSatisfaction(3)" title="Neutral">★</span>
+            <span class="star" onclick="rateSatisfaction(4)" title="Satisfied">★</span>
+            <span class="star" onclick="rateSatisfaction(5)" title="Very Satisfied">★</span>
+          </div>
+          <input type="hidden" id="satisfaction" name="overall_satisfaction" required>
+        </div>
+      </div>
+
+      <!-- Additional Comments -->
+      <div class="form-section">
+        <div class="section-title">💬 Additional Comments (Optional)</div>
+        <div class="form-group">
+          <label>Share any additional feedback or suggestions:</label>
+          <textarea name="additional_comments" placeholder="Your feedback helps us improve..."></textarea>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn-primary">Submit Feedback</button>
+        <button type="button" class="btn-secondary" onclick="document.getElementById('feedbackForm').reset()">Clear</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ktqwhwzbxyoplawjmbao.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZdRF5ogFMTqeijKas';
+    let supabase;
+
+    function initializeSupabase() {
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        return true;
+      } catch (error) {
+        console.error('Supabase failed:', error);
+        return false;
+      }
+    }
+
+    function selectFeedback(label) {
+      const allLabels = label.parentElement.querySelectorAll('.feedback-option');
+      allLabels.forEach(l => l.classList.remove('selected'));
+      label.classList.add('selected');
+    }
+
+    function rateSatisfaction(rating) {
+      const stars = document.querySelectorAll('.star');
+      stars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.add('selected');
+        } else {
+          star.classList.remove('selected');
+        }
+      });
+      document.getElementById('satisfaction').value = rating;
+    }
+
+    document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const user = JSON.parse(localStorage.getItem('heartai_user'));
+      if (!user) {
+        alert('Please login first');
+        return;
+      }
+
+      const feedbackData = {
+        user_id: user.id,
+        ease_of_input: document.querySelector('input[name="ease_of_input"]:checked').value,
+        explanation_clarity: document.querySelector('input[name="explanation_clarity"]:checked').value,
+        overall_satisfaction: parseInt(document.getElementById('satisfaction').value),
+        additional_comments: document.querySelector('textarea[name="additional_comments"]').value
+      };
+
+      try {
+        await initializeSupabase();
+
+        const { error } = await supabase
+          .from('feedback')
+          .insert([feedbackData]);
+
+        if (error) throw error;
+
+        alert('Thank you for your feedback!');
+        window.location.href = 'index.html';
+
+      } catch (error) {
+        alert('Error submitting feedback: ' + error.message);
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initializeSupabase();
+    });
+  </script>
+</body>
+</html>
