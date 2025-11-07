@@ -316,6 +316,7 @@
         <button class="btn-header" onclick="logout()">Logout</button>
       </div>
     </header>
+    
 
     <!-- Tabs -->
     <div class="tabs">
@@ -326,13 +327,14 @@
     <!-- Profile Tab -->
     <div class="tab-content active" id="profileTab">
       <div class="profile-section">
-        <div class="profile-header">
-          <img src="icon-192.png" id="avatarImg" class="avatar" alt="Profile Avatar">
+                <div class="profile-header">
+          <img src="icon-192.png" id="avatarImg" class="avatar" alt="Profile Avatar" style="cursor: pointer;" onclick="document.getElementById('avatarInput').click();">
           <div class="user-name" id="userName">Loading...</div>
           <div class="user-email" id="userEmail">Loading...</div>
-          <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload()">
+          <input type="file" id="avatarInput" accept="image/*">
           <button class="avatar-btn" onclick="document.getElementById('avatarInput').click();">📸 Change Avatar</button>
         </div>
+
 
         <form id="profileForm">
           <div class="form-grid">
@@ -411,7 +413,7 @@
       }
     }
 
-    function loadProfile() {
+        function loadProfile() {
       const user = JSON.parse(localStorage.getItem('heartai_user'));
       if (!user) {
         alert('Please login first');
@@ -429,34 +431,54 @@
       document.getElementById('gender').value = user.gender || '';
       document.getElementById('birthdate').value = user.birthdate || '';
 
-      // Load avatar from localStorage
-      const avatar = localStorage.getItem('heartai_avatar');
-      if (avatar) {
-        document.getElementById('avatarImg').src = avatar;
+      // Load avatar - Priority: user.avatar_url > localStorage > default
+      let avatarSrc = 'icon-192.png';
+      
+      if (user.avatar_url && user.avatar_url.startsWith('data:')) {
+        avatarSrc = user.avatar_url;
+      } else if (localStorage.getItem('heartai_avatar')) {
+        avatarSrc = localStorage.getItem('heartai_avatar');
       }
+      
+      document.getElementById('avatarImg').src = avatarSrc;
     }
 
-    function handleAvatarUpload() {
-      const file = document.getElementById('avatarInput').files[0];
+        // Avatar upload handler
+    document.getElementById('avatarInput').addEventListener('change', function(e) {
+      const file = this.files[0];
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-          const avatar = e.target.result;
-          document.getElementById('avatarImg').src = avatar;
-          localStorage.setItem('heartai_avatar', avatar);
+        reader.onload = function(event) {
+          const imageData = event.target.result;
+          
+          // Update the image display
+          document.getElementById('avatarImg').src = imageData;
+          
+          // Save to localStorage
+          localStorage.setItem('heartai_avatar', imageData);
+          
+          // Update user object
+          currentUser.avatar_url = imageData;
+          localStorage.setItem('heartai_user', JSON.stringify(currentUser));
+          
+          alert('✓ Avatar updated successfully!');
         };
         reader.readAsDataURL(file);
+      } else {
+        alert('Please select a valid image file');
       }
-    }
+    });
 
-    document.getElementById('profileForm').addEventListener('submit', async function(e) {
+
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const formData = {
         full_name: document.getElementById('fullName').value,
         mobile: document.getElementById('mobile').value,
         gender: document.getElementById('gender').value,
-        birthdate: document.getElementById('birthdate').value
+        birthdate: document.getElementById('birthdate').value,
+        avatar_url: document.getElementById('avatarImg').src || null
       };
 
       try {
@@ -469,11 +491,11 @@
 
         if (error) throw error;
 
-        // Update localStorage
+        // Update localStorage with avatar included
         currentUser = { ...currentUser, ...formData };
         localStorage.setItem('heartai_user', JSON.stringify(currentUser));
 
-        alert('Profile updated successfully!');
+        alert('✓ Profile updated successfully!');
       } catch (error) {
         alert('Error updating profile: ' + error.message);
       }
@@ -540,3 +562,4 @@
   </script>
 </body>
 </html>
+
