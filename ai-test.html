@@ -67,6 +67,38 @@
       background: #0088aa;
     }
 
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-weight: bold;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     /* Progress Bar */
     .progress-container {
       margin-bottom: 30px;
@@ -162,10 +194,6 @@
       border-color: var(--accent);
     }
 
-    .mcq-option input[type="radio"] {
-      cursor: pointer;
-    }
-
     .mcq-option.selected {
       background: rgba(0, 168, 204, 0.2);
       border-color: var(--accent);
@@ -253,17 +281,158 @@
       color: var(--danger);
     }
 
-    /* Buttons */
-    .button-group {
+    /* History */
+    .history-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      background: rgba(0, 168, 204, 0.1);
+      border-color: var(--accent);
+    }
+
+    .history-date {
+      color: var(--text-secondary);
+      font-size: 0.9em;
+    }
+
+    .history-result {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .history-percentage {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: var(--accent);
+    }
+
+    .history-btn {
+      padding: 8px 15px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.2s;
+    }
+
+    .history-btn:hover {
+      background: #0088aa;
+    }
+
+    /* Result Modal */
+    .result-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .result-modal.show {
+      display: flex;
+    }
+
+    .result-content {
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      border-radius: 15px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0, 168, 204, 0.3);
+    }
+
+    .result-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+
+    .result-percentage {
+      font-size: 3em;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .result-category {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .result-message {
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .doctor-list {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+      text-align: left;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .doctor-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .doctor-item:last-child {
+      border-bottom: none;
+    }
+
+    .doctor-name {
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .doctor-phone {
+      color: var(--text-secondary);
+      font-size: 0.9em;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .doctor-phone:hover {
+      color: var(--accent);
+    }
+
+    .result-buttons {
       display: flex;
       gap: 15px;
-      justify-content: center;
-      margin-top: 30px;
+      margin-top: 25px;
     }
 
     .btn-primary,
     .btn-secondary {
-      padding: 12px 30px;
+      flex: 1;
+      padding: 12px;
       border: none;
       border-radius: 8px;
       font-weight: bold;
@@ -292,7 +461,14 @@
       background: rgba(255, 255, 255, 0.2);
     }
 
-    /* Responsive */
+    /* Buttons */
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
     @media (max-width: 768px) {
       .live-results {
         position: static;
@@ -307,6 +483,10 @@
       .btn-secondary {
         width: 100%;
       }
+
+      .result-content {
+        padding: 25px;
+      }
     }
   </style>
 </head>
@@ -317,141 +497,183 @@
       <button class="btn-back" onclick="window.location.href='index.html'">← Back</button>
     </header>
 
-    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 25px;">
-      <!-- Main Form -->
-      <div>
-        <!-- Progress -->
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('test')">📋 New Test</button>
+      <button class="tab-btn" onclick="switchTab('history')">📜 History</button>
+    </div>
+
+    <!-- Test Tab -->
+    <div class="tab-content active" id="testTab">
+      <div style="display: grid; grid-template-columns: 1fr 300px; gap: 25px;">
+        <!-- Main Form -->
+        <div>
+          <!-- Progress -->
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+              Completed: <span id="currentQuestion">0</span> of <span id="totalQuestions">21</span>
+            </div>
           </div>
-          <div class="progress-text">
-            Question <span id="currentQuestion">1</span> of <span id="totalQuestions">15</span>
-          </div>
+
+          <form id="testForm">
+            <!-- Personal Information Section -->
+            <div class="form-section">
+              <div class="section-title">📋 Personal Information</div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                  <label>Age (years)</label>
+                  <input type="number" id="age" min="18" max="100" required onchange="updateLiveResults()">
+                </div>
+
+                <div class="form-group">
+                  <label>Gender</label>
+                  <select id="gender" required onchange="updateLiveResults()">
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Height (cm)</label>
+                  <input type="number" id="height" min="100" max="250" required onchange="updateLiveResults()">
+                </div>
+
+                <div class="form-group">
+                  <label>Weight (kg)</label>
+                  <input type="number" id="weight" min="30" max="200" required onchange="updateLiveResults()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Medical Parameters Section -->
+            <div class="form-section">
+              <div class="section-title">⚕️ Medical Parameters</div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                  <label>BP Systolic (mmHg)</label>
+                  <input type="number" id="bpSystolic" min="70" max="200" required onchange="updateLiveResults()">
+                </div>
+
+                <div class="form-group">
+                  <label>BP Diastolic (mmHg)</label>
+                  <input type="number" id="bpDiastolic" min="40" max="130" required onchange="updateLiveResults()">
+                </div>
+
+                <div class="form-group">
+                  <label>Cholesterol (mg/dL)</label>
+                  <input type="number" id="cholesterol" min="100" max="400" required onchange="updateLiveResults()">
+                </div>
+
+                <div class="form-group">
+                  <label>Diabetes</label>
+                  <select id="diabetes" required onchange="updateLiveResults()">
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Smoking/Alcohol</label>
+                  <select id="smokingAlcohol" required onchange="updateLiveResults()">
+                    <option value="">Select</option>
+                    <option value="Never">Never</option>
+                    <option value="Former">Former</option>
+                    <option value="Current">Current</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Hypertension</label>
+                  <select id="hypertension" required onchange="updateLiveResults()">
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Symptom Questions Section -->
+            <div class="form-section">
+              <div class="section-title">❓ Symptom Assessment (15 Questions)</div>
+              <div id="questionsContainer"></div>
+            </div>
+
+            <div class="button-group">
+              <button type="submit" class="btn-primary">Submit Test</button>
+              <button type="reset" class="btn-secondary" onclick="resetForm()">Clear Form</button>
+            </div>
+          </form>
         </div>
 
-        <form id="testForm">
-          <!-- Personal Information Section -->
-          <div class="form-section">
-            <div class="section-title">📋 Personal Information</div>
+        <!-- Live Results Panel -->
+        <div class="live-results">
+          <h3>Live Results</h3>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-              <div class="form-group">
-                <label>Age (years)</label>
-                <input type="number" id="age" min="18" max="100" required onchange="updateLiveResults()">
-              </div>
-
-              <div class="form-group">
-                <label>Gender</label>
-                <select id="gender" required onchange="updateLiveResults()">
-                  <option value="">Select</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Height (cm)</label>
-                <input type="number" id="height" min="100" max="250" required onchange="updateLiveResults()">
-              </div>
-
-              <div class="form-group">
-                <label>Weight (kg)</label>
-                <input type="number" id="weight" min="30" max="200" required onchange="updateLiveResults()">
+          <div class="risk-meter">
+            <div class="meter-label">
+              <span>Low</span>
+              <span id="riskPercentageDisplay">0%</span>
+              <span>High</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-indicator" id="meterIndicator" style="width: 0%;">
+                <span id="meterText"></span>
               </div>
             </div>
           </div>
 
-          <!-- Medical Parameters Section -->
-          <div class="form-section">
-            <div class="section-title">⚕️ Medical Parameters</div>
+          <div class="risk-percentage" id="riskScore">0%</div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-              <div class="form-group">
-                <label>Blood Pressure - Systolic (mmHg)</label>
-                <input type="number" id="bpSystolic" min="70" max="200" required onchange="updateLiveResults()">
-              </div>
-
-              <div class="form-group">
-                <label>Blood Pressure - Diastolic (mmHg)</label>
-                <input type="number" id="bpDiastolic" min="40" max="130" required onchange="updateLiveResults()">
-              </div>
-
-              <div class="form-group">
-                <label>Cholesterol Level (mg/dL)</label>
-                <input type="number" id="cholesterol" min="100" max="400" required onchange="updateLiveResults()">
-              </div>
-
-              <div class="form-group">
-                <label>Do you have Diabetes?</label>
-                <select id="diabetes" required onchange="updateLiveResults()">
-                  <option value="">Select</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Smoking/Alcoholic Status</label>
-                <select id="smokingAlcohol" required onchange="updateLiveResults()">
-                  <option value="">Select</option>
-                  <option value="Never">Never</option>
-                  <option value="Former">Former</option>
-                  <option value="Current">Current</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Do you have Hypertension?</label>
-                <select id="hypertension" required onchange="updateLiveResults()">
-                  <option value="">Select</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-            </div>
+          <div class="risk-category low" id="riskCategory">
+            Low Risk
           </div>
 
-          <!-- Symptom Questions Section -->
-          <div class="form-section">
-            <div class="section-title">❓ Symptom Assessment (15 Questions)</div>
-
-            <div id="questionsContainer"></div>
+          <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 15px;">
+            <p id="riskDescription">Complete the form to see risk assessment</p>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <div class="button-group">
-            <button type="submit" class="btn-primary">Submit Test</button>
-            <button type="reset" class="btn-secondary">Clear Form</button>
-          </div>
-        </form>
+    <!-- History Tab -->
+    <div class="tab-content" id="historyTab">
+      <div class="form-section">
+        <div class="section-title">📜 Your Test History</div>
+        <div id="historyContainer">
+          <p style="text-align: center; color: var(--text-secondary);">No tests taken yet</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="result-modal" id="resultModal">
+    <div class="result-content">
+      <div class="result-icon" id="resultIcon">🎯</div>
+      <div class="result-percentage" id="resultPercentage">0%</div>
+      <div class="result-category" id="resultCategoryDisplay">Low Risk</div>
+
+      <div class="result-message" id="resultMessage">
+        Your test has been completed successfully.
       </div>
 
-      <!-- Live Results Panel (Sticky) -->
-      <div class="live-results">
-        <h3>Live Results</h3>
+      <!-- Doctor List for High Risk -->
+      <div class="doctor-list" id="doctorList" style="display: none;">
+        <strong style="color: var(--accent);">Recommended Doctors in Solapur:</strong>
+        <div style="margin-top: 10px;" id="doctorListItems"></div>
+      </div>
 
-        <div class="risk-meter">
-          <div class="meter-label">
-            <span>Low</span>
-            <span id="riskPercentageDisplay">0%</span>
-            <span>High</span>
-          </div>
-          <div class="meter-bar">
-            <div class="meter-indicator" id="meterIndicator" style="width: 0%;">
-              <span id="meterText"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="risk-percentage" id="riskScore">0%</div>
-
-        <div class="risk-category low" id="riskCategory">
-          Low Risk
-        </div>
-
-        <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 15px;">
-          <p id="riskDescription">Complete the form to see risk assessment</p>
-        </div>
+      <div class="result-buttons">
+        <button class="btn-primary" onclick="goToFeedback()">📝 Go to Feedback</button>
+        <button class="btn-secondary" onclick="closeResultModal()">✕ Close</button>
       </div>
     </div>
   </div>
@@ -460,6 +682,7 @@
     const SUPABASE_URL = 'https://ktqwhwzbxyoplawjmbao.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZdRF5ogFMTqeijKas';
     let supabase;
+    let currentPredictionId = null;
 
     const questions = [
       "Do you often feel chest tightness or discomfort during physical exertion or stress?",
@@ -479,6 +702,14 @@
       "Have you noticed your symptoms worsening in cold weather or when you are stressed"
     ];
 
+    const doctors = [
+      { name: "Janani Heart Care Clinic", phone: "+91 84838 09472", hours: "Mon-Wed, Fri-Sat: 11 AM-8 PM | Thu: 7 AM-8 PM | Sun: Closed", map: "https://maps.google.com/?q=Janani+Heart+Care+Clinic+Solapur" },
+      { name: "Dr. Gurunath Parale - Spandan Cardiac Diagnostic Centre", phone: "+91 217 231 3979", hours: "Mon-Fri: 12 PM-7 PM | Sat: 12 PM-4 PM | Sun: Closed", map: "https://maps.google.com/?q=Spandan+Cardiac+Diagnostic+Centre+Solapur" },
+      { name: "Dr. Anupam Shah Heart Clinic", phone: "+91 217 262 8877", hours: "Mon-Fri: 1-5 PM, 6-8 PM | Sat: 1-5 PM | Sun: Closed", map: "https://maps.google.com/?q=Dr+Anupam+Shah+Heart+Clinic+Solapur" },
+      { name: "Dr. Shewale's Sai Heart & Maternity Care", phone: "+91 74474 45121", hours: "Mon-Sat: 10 AM-8 PM | Sun: Closed", map: "https://maps.google.com/?q=Sai+Heart+Maternity+Care+Solapur" },
+      { name: "Samruddhi Heart Care", phone: "+91 82751 57576", hours: "Mon-Sat: 11 AM-9 PM | Sun: Closed", map: "https://maps.google.com/?q=Samruddhi+Heart+Care+Solapur" }
+    ];
+
     function initializeSupabase() {
       try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -489,6 +720,20 @@
       }
     }
 
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      if (tab === 'test') {
+        document.getElementById('testTab').classList.add('active');
+        document.querySelector('[onclick="switchTab(\'test\')"]').classList.add('active');
+      } else {
+        document.getElementById('historyTab').classList.add('active');
+        document.querySelector('[onclick="switchTab(\'history\')"]').classList.add('active');
+        loadHistory();
+      }
+    }
+
     function createQuestions() {
       const container = document.getElementById('questionsContainer');
       
@@ -496,7 +741,7 @@
         const questionDiv = document.createElement('div');
         questionDiv.className = 'form-group';
         questionDiv.innerHTML = `
-          <label style="margin-bottom: 12px; display: block;">${index + 1}. ${question}</label>
+          <label style="margin-bottom: 12px; display: block; font-weight: normal;">${index + 1}. ${question}</label>
           <div class="mcq-options">
             <label class="mcq-option" onclick="selectOption(this)">
               <input type="radio" name="q${index + 1}" value="0"> Strongly Disagree
@@ -518,7 +763,7 @@
         container.appendChild(questionDiv);
       });
 
-      document.getElementById('totalQuestions').textContent = questions.length;
+      document.getElementById('totalQuestions').textContent = 21;
     }
 
     function selectOption(label) {
@@ -538,32 +783,24 @@
 
       let riskScore = 0;
 
-      // Age factor
       if (age > 60) riskScore += 20;
       else if (age > 50) riskScore += 15;
       else if (age > 40) riskScore += 10;
 
-      // Blood pressure factor
       if (bpSystolic > 160) riskScore += 20;
       else if (bpSystolic > 140) riskScore += 15;
       else if (bpSystolic > 130) riskScore += 10;
 
-      // Cholesterol factor
       if (cholesterol > 300) riskScore += 20;
       else if (cholesterol > 240) riskScore += 15;
       else if (cholesterol > 200) riskScore += 10;
 
-      // Diabetes factor
       if (diabetes === 'Yes') riskScore += 15;
-
-      // Hypertension factor
       if (hypertension === 'Yes') riskScore += 15;
 
-      // Smoking/Alcohol factor
       if (smokingAlcohol === 'Current') riskScore += 20;
       else if (smokingAlcohol === 'Former') riskScore += 10;
 
-      // Symptom questions factor
       let symptomScore = 0;
       let answeredQuestions = 0;
       for (let i = 1; i <= questions.length; i++) {
@@ -579,11 +816,9 @@
         riskScore += symptomPercentage;
       }
 
-      // Cap at 100
       riskScore = Math.min(riskScore, 100);
       riskScore = Math.max(riskScore, 0);
 
-      // Update display
       const riskPercentage = Math.round(riskScore);
       document.getElementById('riskScore').textContent = riskPercentage + '%';
       document.getElementById('riskPercentageDisplay').textContent = riskPercentage + '%';
@@ -592,7 +827,6 @@
       indicator.style.width = riskPercentage + '%';
       indicator.textContent = riskPercentage + '%';
 
-      // Update category and description
       const categoryDiv = document.getElementById('riskCategory');
       const descriptionDiv = document.getElementById('riskDescription');
 
@@ -601,11 +835,11 @@
       if (riskPercentage < 20) {
         categoryDiv.classList.add('low');
         categoryDiv.textContent = '✓ Low Risk';
-        descriptionDiv.textContent = 'Your current risk profile appears to be low. Continue with healthy lifestyle choices.';
+        descriptionDiv.textContent = 'Your risk profile appears low. Continue healthy lifestyle choices.';
       } else if (riskPercentage < 40) {
         categoryDiv.classList.add('medium');
         categoryDiv.textContent = '⚠ Medium Risk';
-        descriptionDiv.textContent = 'You have some risk factors. Consider consulting a healthcare professional.';
+        descriptionDiv.textContent = 'You have some risk factors. Consider consulting a doctor.';
       } else if (riskPercentage < 60) {
         categoryDiv.classList.add('high');
         categoryDiv.textContent = '⚠ High Risk';
@@ -613,7 +847,7 @@
       } else {
         categoryDiv.classList.add('high');
         categoryDiv.textContent = '🔴 Very High Risk';
-        descriptionDiv.textContent = 'Please seek immediate medical attention. Consult a cardiologist urgently.';
+        descriptionDiv.textContent = 'Seek immediate medical attention. Consult a cardiologist urgently.';
       }
 
       updateProgressBar();
@@ -621,7 +855,7 @@
 
     function updateProgressBar() {
       let filledFields = 0;
-      let totalFields = 21; // 6 personal + 6 medical + 15 questions
+      const totalFields = 21;
 
       if (document.getElementById('age').value) filledFields++;
       if (document.getElementById('gender').value) filledFields++;
@@ -645,6 +879,11 @@
       document.getElementById('currentQuestion').textContent = filledFields;
     }
 
+    function resetForm() {
+      document.getElementById('testForm').reset();
+      updateLiveResults();
+    }
+
     document.getElementById('testForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -654,6 +893,8 @@
         return;
       }
 
+      const riskPercentage = parseInt(document.getElementById('riskScore').textContent);
+      
       const formData = {
         user_id: user.id,
         age: parseInt(document.getElementById('age').value),
@@ -665,46 +906,145 @@
         cholesterol_level: parseInt(document.getElementById('cholesterol').value),
         has_diabetes: document.getElementById('diabetes').value === 'Yes',
         smoking_alcohol: document.getElementById('smokingAlcohol').value,
-        has_hypertension: document.getElementById('hypertension').value === 'Yes'
+        has_hypertension: document.getElementById('hypertension').value === 'Yes',
+        risk_percentage: riskPercentage,
+        risk_category: document.getElementById('riskCategory').textContent.trim()
       };
 
-      // Add question answers
       for (let i = 1; i <= 15; i++) {
         const checked = document.querySelector(`input[name="q${i}"]:checked`);
-        formData[`q${i}_${['chest_tightness', 'fatigue', 'neck_jaw_pain', 'shortness_breath', 'chest_fullness', 'tired_unusual', 'sharp_burning', 'chest_pressure', 'tired_after_meal', 'chest_breath_pain', 'shortness_resting', 'squeezing_stress', 'indigestion', 'irregular_heartbeat', 'symptoms_cold_stress'][i-1]}`] = parseInt(checked.value);
+        const fieldNames = ['q1_chest_tightness', 'q2_fatigue', 'q3_neck_jaw_pain', 'q4_shortness_breath', 'q5_chest_fullness', 'q6_tired_unusual', 'q7_sharp_burning', 'q8_chest_pressure', 'q9_tired_after_meal', 'q10_chest_breath_pain', 'q11_shortness_resting', 'q12_squeezing_stress', 'q13_indigestion', 'q14_irregular_heartbeat', 'q15_symptoms_cold_stress'];
+        formData[fieldNames[i-1]] = checked ? parseInt(checked.value) : 0;
       }
-
-      // Calculate risk
-      const riskPercentage = parseInt(document.getElementById('riskScore').textContent);
-      formData.risk_percentage = riskPercentage;
-      
-      if (riskPercentage < 20) formData.risk_category = 'Low';
-      else if (riskPercentage < 40) formData.risk_category = 'Medium';
-      else if (riskPercentage < 60) formData.risk_category = 'High';
-      else formData.risk_category = 'Very High';
 
       try {
         await initializeSupabase();
 
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('disease_predictions')
-          .insert([formData]);
+          .insert([formData])
+          .select();
 
         if (error) throw error;
 
-        alert('Test submitted successfully!');
-        window.location.href = 'feedback.html?prediction=done';
+        currentPredictionId = data[0].id;
+
+        // Show result modal
+        showResultModal(riskPercentage, formData.risk_category);
+
+        // Save to localStorage history
+        let history = JSON.parse(localStorage.getItem('heartai_test_history') || '[]');
+        history.unshift({
+          id: data[0].id,
+          date: new Date().toLocaleString(),
+          percentage: riskPercentage,
+          category: formData.risk_category
+        });
+        localStorage.setItem('heartai_test_history', JSON.stringify(history.slice(0, 50)));
 
       } catch (error) {
         alert('Error submitting test: ' + error.message);
       }
     });
 
+    function showResultModal(percentage, category) {
+      document.getElementById('resultPercentage').textContent = percentage + '%';
+      document.getElementById('resultCategoryDisplay').className = 'result-category';
+      
+      if (percentage < 20) {
+        document.getElementById('resultIcon').textContent = '✅';
+        document.getElementById('resultCategoryDisplay').classList.add('low');
+        document.getElementById('resultCategoryDisplay').textContent = 'Low Risk';
+        document.getElementById('resultMessage').textContent = 'Great! Your risk profile is low. Maintain a healthy lifestyle with regular exercise and balanced diet.';
+        document.getElementById('doctorList').style.display = 'none';
+      } else if (percentage < 40) {
+        document.getElementById('resultIcon').textContent = '⚠️';
+        document.getElementById('resultCategoryDisplay').classList.add('medium');
+        document.getElementById('resultCategoryDisplay').textContent = 'Medium Risk';
+        document.getElementById('resultMessage').textContent = 'You have some risk factors. Schedule a consultation with a healthcare professional.';
+        document.getElementById('doctorList').style.display = 'none';
+      } else if (percentage < 60) {
+        document.getElementById('resultIcon').textContent = '⚠️';
+        document.getElementById('resultCategoryDisplay').classList.add('high');
+        document.getElementById('resultCategoryDisplay').textContent = 'High Risk';
+        document.getElementById('resultMessage').textContent = 'You should consult a cardiologist soon. Click below to contact recommended doctors.';
+        showDoctors();
+      } else {
+        document.getElementById('resultIcon').textContent = '🔴';
+        document.getElementById('resultCategoryDisplay').classList.add('high');
+        document.getElementById('resultCategoryDisplay').textContent = 'Very High Risk';
+        document.getElementById('resultMessage').textContent = 'Please seek immediate medical attention. Contact a cardiologist urgently!';
+        showDoctors();
+      }
+
+      document.getElementById('resultModal').classList.add('show');
+    }
+
+    function showDoctors() {
+      const doctorList = document.getElementById('doctorListItems');
+      doctorList.innerHTML = '';
+      
+      doctors.forEach(doctor => {
+        const item = document.createElement('div');
+        item.className = 'doctor-item';
+        item.innerHTML = `
+          <div class="doctor-name">${doctor.name}</div>
+          <div class="doctor-phone" onclick="callDoctor('${doctor.phone}')">📞 ${doctor.phone}</div>
+          <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 5px;">${doctor.hours}</div>
+          <div style="margin-top: 8px;">
+            <a href="${doctor.map}" target="_blank" style="color: var(--accent); text-decoration: underline; font-size: 0.9em;">🗺️ View on Google Maps</a>
+          </div>
+        `;
+        doctorList.appendChild(item);
+      });
+
+      document.getElementById('doctorList').style.display = 'block';
+    }
+
+    function callDoctor(phone) {
+      window.location.href = `tel:${phone}`;
+    }
+
+    function closeResultModal() {
+      document.getElementById('resultModal').classList.remove('show');
+    }
+
+    function goToFeedback() {
+      localStorage.setItem('heartai_current_prediction', currentPredictionId);
+      window.location.href = 'feedback.html';
+    }
+
+    function loadHistory() {
+      const history = JSON.parse(localStorage.getItem('heartai_test_history') || '[]');
+      const container = document.getElementById('historyContainer');
+
+      if (history.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No tests taken yet</p>';
+        return;
+      }
+
+      container.innerHTML = history.map((test, index) => `
+        <div class="history-item">
+          <div>
+            <div class="history-date">${test.date}</div>
+            <div style="margin-top: 5px; color: var(--accent);">Risk: ${test.category}</div>
+          </div>
+          <div class="history-result">
+            <div class="history-percentage">${test.percentage}%</div>
+            <button class="history-btn" onclick="viewTestDetails('${test.id}')">View</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function viewTestDetails(testId) {
+      alert('Test ID: ' + testId + '\nDetailed view coming soon!');
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       initializeSupabase();
       createQuestions();
 
-      // Check if user is logged in
       const user = localStorage.getItem('heartai_logged_in');
       if (!user) {
         alert('Please login first');
