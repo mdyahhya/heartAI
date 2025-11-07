@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart AI - Precautions & Prevention</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1a365d;
+      --accent: #00a8cc;
+      --bg-dark: #0f1419;
+      --bg-card: #1a2332;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b8c1;
+      --border: #2d3748;
+      --success: #27ae60;
+      --warning: #f39c12;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .logo {
+      font-size: 1.5em;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .btn-back {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+      background: #0088aa;
+    }
+
+    .page-title {
+      font-size: 2.3em;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      font-size: 1.1em;
+    }
+
+    /* Precautions Grid */
+    .precautions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .precaution-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 15px;
+      padding: 25px;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .precaution-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 40px rgba(0, 168, 204, 0.3);
+    }
+
+    .precaution-icon {
+      font-size: 2.8em;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .precaution-number {
+      display: inline-block;
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      color: var(--primary);
+      border-radius: 50%;
+      text-align: center;
+      line-height: 35px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 1.1em;
+    }
+
+    .precaution-title {
+      font-size: 1.3em;
+      color: var(--accent);
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+
+    .precaution-description {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-size: 0.95em;
+      flex-grow: 1;
+    }
+
+    .precaution-tip {
+      background: rgba(0, 168, 204, 0.1);
+      border-left: 4px solid var(--accent);
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      color: #b3e5fc;
+    }
+
+    /* Benefits Section */
+    .benefits-section {
+      background: var(--bg-card);
+      border: 2px solid var(--success);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .benefits-title {
+      font-size: 1.8em;
+      color: var(--success);
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--success);
+      padding-bottom: 12px;
+      text-align: center;
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .benefit-item {
+      background: rgba(39, 174, 96, 0.1);
+      border: 1px solid var(--success);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .benefit-icon {
+      font-size: 2.2em;
+      margin-bottom: 10px;
+    }
+
+    .benefit-text {
+      color: var(--text-secondary);
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+
+    /* Warning Section */
+    .warning-section {
+      background: rgba(243, 156, 18, 0.1);
+      border: 2px solid var(--warning);
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+
+    .warning-title {
+      font-size: 1.5em;
+      color: var(--warning);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .warning-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .warning-list li {
+      padding: 10px 0;
+      padding-left: 30px;
+      position: relative;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .warning-list li:before {
+      content: "⚠️";
+      position: absolute;
+      left: 0;
+      color: var(--warning);
+    }
+
+    /* Action Section */
+    .action-section {
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      border-radius: 15px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .action-title {
+      font-size: 1.6em;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+
+    .action-description {
+      color: var(--text-secondary);
+      margin-bottom: 25px;
+      font-size: 1em;
+      line-height: 1.7;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #00d4ff);
+      color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0, 168, 204, 0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0;
+      }
+
+      body {
+        padding: 12px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .logo {
+        text-align: center;
+      }
+
+      .btn-back {
+        width: 100%;
+        text-align: center;
+      }
+
+      .page-title {
+        font-size: 1.8em;
+      }
+
+      .page-subtitle {
+        font-size: 1em;
+        margin-bottom: 30px;
+      }
+
+      .precautions-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .precaution-card {
+        padding: 18px;
+      }
+
+      .precaution-icon {
+        font-size: 2.3em;
+      }
+
+      .precaution-title {
+        font-size: 1.2em;
+      }
+
+      .benefits-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .page-title {
+        font-size: 1.5em;
+      }
+
+      .precautions-grid {
+        gap: 12px;
+      }
+
+      .precaution-card {
+        padding: 15px;
+      }
+
+      .benefits-section,
+      .warning-section,
+      .action-section {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">❤️ Heart AI - Prevention</div>
+      <button class="btn-back" onclick="window.location.href='index.html'">← Home</button>
+    </header>
+
+    <h1 class="page-title">🛡️ CAD Prevention & Precautions</h1>
+    <p class="page-subtitle">Essential steps to reduce your risk of Coronary Artery Disease</p>
+
+    <!-- Main Precautions Grid -->
+    <div class="precautions-grid">
+      <!-- Precaution 1 -->
+      <div class="precaution-card">
+        <div class="precaution-number">1</div>
+        <div class="precaution-icon">🥗</div>
+        <div class="precaution-title">Heart-Healthy Diet</div>
+        <div class="precaution-description">
+          Eat a balanced diet that is low in fat and salt, while being rich in fruits, vegetables, and whole grains. This helps maintain healthy cholesterol and blood pressure levels.
+        </div>
+        <div class="precaution-tip">
+          <strong>Tip:</strong> Replace saturated fats with olive oil and include fish rich in omega-3 fatty acids 2-3 times per week.
+        </div>
+      </div>
+
+      <!-- Precaution 2 -->
+      <div class="precaution-card">
+        <div class="precaution-number">2</div>
+        <div class="precaution-icon">🏃</div>
+        <div class="precaution-title">Regular Exercise</div>
+        <div class="precaution-description">
+          Aim for at least 30 minutes of moderate physical activity, 5 days per week. Regular exercise strengthens your heart and improves circulation.
+        </div>
+        <div class="precaution-tip">
+          <strong>Tip:</strong> Walking, jogging, swimming, or cycling are all excellent cardio exercises. Mix with strength training 2 days per week.
+        </div>
+      </div>
+
+      <!-- Precaution 3 -->
+      <div class="precaution-card">
+        <div class="precaution-number">3</div>
+        <div class="precaution-icon">🚭</div>
+        <div class="precaution-title">Avoid Smoking & Alcohol</div>
+        <div class="precaution-description">
+          Quit smoking completely and limit alcohol consumption. Smoking damages blood vessels and increases clot formation, while excess alcohol raises blood pressure.
+        </div>
+        <div class="precaution-tip">
+          <strong>Tip:</strong> Seek professional help for smoking cessation. If you drink, limit to 1 drink/day for women, 2 drinks/day for men.
+        </div>
+      </div>
+
+      <!-- Precaution 4 -->
+      <div class="precaution-card">
+        <div class="precaution-number">4</div>
+        <div class="precaution-icon">⚖️</div>
+        <div class="precaution-title">Maintain Healthy Weight</div>
+        <div class="precaution-description">
+          Keep your body mass index (BMI) in the healthy range (18.5-24.9). Excess weight, especially around the abdomen, increases heart disease risk.
+        </div>
+        <div class="precaution-tip">
+          <strong>Tip:</strong> Combine regular exercise with healthy eating. Aim to lose 5-10% of body weight if overweight.
+        </div>
+      </div>
+
+      <!-- Precaution 5 -->
+      <div class="precaution-card">
+        <div class="precaution-number">5</div>
+        <div class="precaution-icon">💊</div>
+        <div class="precaution-title">Monitor Health Metrics</div>
+        <div class="precaution-description">
+          Control blood pressure, diabetes, and cholesterol through proper treatment and regular monitoring. Keep these levels within recommended ranges.
+        </div>
+        <div class="precaution-tip">
+          <strong>Tip:</strong> Check blood pressure regularly, monitor blood sugar if diabetic, and have cholesterol levels checked annually.
+        </div>
+      </div>
+
+      <!-- Precaution 6 -->
+      <div class="precaution-card">
+        <div class="precaution-number">6</div>
+        <div class="precaution-icon">🧘</div>
+        <div class="precaution-title">Manage Stress</div>
+        <div class="precaution-description">
+          Practice stress management techniques like meditation, yoga, deep breathing, or other relaxation methods. Chronic stress increases heart disease risk.
+        </div>
+        <div class="precaution-tip">
+          <strong>Tip:</strong> Dedicate 10-15 minutes daily for meditation. Engage in hobbies and spend time with loved ones.
+        </div>
+      </div>
+
+      <!-- Precaution 7 -->
+      <div class="precaution-card">
+        <div class="precaution-number">7</div>
+        <div class="precaution-icon">🏥</div>
+        <div class="precaution-title">Regular Health Check-ups</div>
+        <div class="precaution-description">
+          Get regular heart check-ups, especially if you have family history or risk factors. Early detection can prevent serious complications.
+        </div>
+        <div class="precaution-tip">
+          <strong>Tip:</strong> Schedule annual check-ups, and more frequent visits if you have existing conditions or family history of heart disease.
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="benefits-section">
+      <div class="benefits-title">✅ Benefits of Following These Precautions</div>
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">❤️</div>
+          <div class="benefit-text">Reduced risk of heart attack and stroke</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">⚡</div>
+          <div class="benefit-text">Improved heart function and circulation</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">😊</div>
+          <div class="benefit-text">Better overall physical and mental health</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">🎯</div>
+          <div class="benefit-text">Improved blood pressure and cholesterol</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">💪</div>
+          <div class="benefit-text">Increased energy and stamina</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">🧠</div>
+          <div class="benefit-text">Better cognitive function and memory</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning Section -->
+    <div class="warning-section">
+      <div class="warning-title">⚠️ When to Seek Immediate Medical Help</div>
+      <ul class="warning-list">
+        <li>Severe chest pain or pressure lasting more than 15 minutes</li>
+        <li>Shortness of breath accompanied by chest discomfort</li>
+        <li>Pain radiating to arms, neck, jaw, or back</li>
+        <li>Sudden dizziness, nausea, or cold sweats</li>
+        <li>Fainting or loss of consciousness</li>
+        <li>Rapid or irregular heartbeat with symptoms</li>
+      </ul>
+      <p style="margin-top: 15px; color: var(--warning); font-weight: bold;">
+        In case of emergency, call emergency services (911 in USA, 108 in India) or go to the nearest hospital immediately.
+      </p>
+    </div>
+
+    <!-- Action Section -->
+    <div class="action-section">
+      <div class="action-title">Ready to Take Action?</div>
+      <div class="action-description">
+        Start your heart disease prevention journey today. Take our AI-powered risk assessment test to understand your current health status and get personalized recommendations.
+      </div>
+      <div class="action-buttons">
+        <button class="btn-primary" onclick="window.location.href='ai-test.html'">🤖 Take AI Test</button>
+        <button class="btn-secondary" onclick="window.location.href='info.html'">📚 Learn More</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
