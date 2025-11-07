@@ -458,4 +458,259 @@
 
   <script>
     const SUPABASE_URL = 'https://ktqwhwzbxyoplawjmbao.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZ
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cXdod3pieHlvcGxhd2ptYmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMzQ2ODgsImV4cCI6MjA2ODYxMDY4OH0.mo0mu-k3b_saK3I4gAGr4OIZcGZdRF5ogFMTqeijKas';
+    let supabase;
+
+    const questions = [
+      "Do you often feel chest tightness or discomfort during physical exertion or stress?",
+      "Have you noticed increased fatigue after normal activities, such as walking or climbing stairs?",
+      "Do you experience pain or discomfort in your neck, jaw, or back?",
+      "Do you often feel out of breath after moderate exertion, such as walking short distances?",
+      "Have you ever had a sense of fullness or heaviness in your chest that comes and goes?",
+      "Do you feel more tired or fatigued than usual, even after a full night's sleep?",
+      "Have you experienced sharp or burning sensations in your chest that worsen with exertion?",
+      "Do you sometimes feel pressure in your chest that radiates to your arms or shoulders?",
+      "Have you ever felt unusually tired or weak after eating a large meal?",
+      "Do you feel pain in your chest that gets worse when you breathe deeply or cough?",
+      "Have you ever felt short of breath, even when sitting still or resting?",
+      "Do you feel a squeezing sensation in your chest, especially during emotional stress?",
+      "Have you experienced indigestion-like discomfort that does not go away with antacids?",
+      "Do you feel as though your heart is beating too slowly or erratically, even without physical activity?",
+      "Have you noticed your symptoms worsening in cold weather or when you are stressed"
+    ];
+
+    function initializeSupabase() {
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        return true;
+      } catch (error) {
+        console.error('Supabase failed:', error);
+        return false;
+      }
+    }
+
+    function createQuestions() {
+      const container = document.getElementById('questionsContainer');
+      
+      questions.forEach((question, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'form-group';
+        questionDiv.innerHTML = `
+          <label style="margin-bottom: 12px; display: block;">${index + 1}. ${question}</label>
+          <div class="mcq-options">
+            <label class="mcq-option" onclick="selectOption(this)">
+              <input type="radio" name="q${index + 1}" value="0"> Strongly Disagree
+            </label>
+            <label class="mcq-option" onclick="selectOption(this)">
+              <input type="radio" name="q${index + 1}" value="1"> Disagree
+            </label>
+            <label class="mcq-option" onclick="selectOption(this)">
+              <input type="radio" name="q${index + 1}" value="2"> Neutral
+            </label>
+            <label class="mcq-option" onclick="selectOption(this)">
+              <input type="radio" name="q${index + 1}" value="3"> Agree
+            </label>
+            <label class="mcq-option" onclick="selectOption(this)">
+              <input type="radio" name="q${index + 1}" value="4"> Strongly Agree
+            </label>
+          </div>
+        `;
+        container.appendChild(questionDiv);
+      });
+
+      document.getElementById('totalQuestions').textContent = questions.length;
+    }
+
+    function selectOption(label) {
+      const allLabels = label.parentElement.querySelectorAll('.mcq-option');
+      allLabels.forEach(l => l.classList.remove('selected'));
+      label.classList.add('selected');
+      updateLiveResults();
+    }
+
+    function updateLiveResults() {
+      const age = parseInt(document.getElementById('age').value) || 0;
+      const bpSystolic = parseInt(document.getElementById('bpSystolic').value) || 0;
+      const cholesterol = parseInt(document.getElementById('cholesterol').value) || 0;
+      const diabetes = document.getElementById('diabetes').value;
+      const hypertension = document.getElementById('hypertension').value;
+      const smokingAlcohol = document.getElementById('smokingAlcohol').value;
+
+      let riskScore = 0;
+
+      // Age factor
+      if (age > 60) riskScore += 20;
+      else if (age > 50) riskScore += 15;
+      else if (age > 40) riskScore += 10;
+
+      // Blood pressure factor
+      if (bpSystolic > 160) riskScore += 20;
+      else if (bpSystolic > 140) riskScore += 15;
+      else if (bpSystolic > 130) riskScore += 10;
+
+      // Cholesterol factor
+      if (cholesterol > 300) riskScore += 20;
+      else if (cholesterol > 240) riskScore += 15;
+      else if (cholesterol > 200) riskScore += 10;
+
+      // Diabetes factor
+      if (diabetes === 'Yes') riskScore += 15;
+
+      // Hypertension factor
+      if (hypertension === 'Yes') riskScore += 15;
+
+      // Smoking/Alcohol factor
+      if (smokingAlcohol === 'Current') riskScore += 20;
+      else if (smokingAlcohol === 'Former') riskScore += 10;
+
+      // Symptom questions factor
+      let symptomScore = 0;
+      let answeredQuestions = 0;
+      for (let i = 1; i <= questions.length; i++) {
+        const checked = document.querySelector(`input[name="q${i}"]:checked`);
+        if (checked) {
+          symptomScore += parseInt(checked.value);
+          answeredQuestions++;
+        }
+      }
+
+      if (answeredQuestions > 0) {
+        const symptomPercentage = (symptomScore / (answeredQuestions * 4)) * 30;
+        riskScore += symptomPercentage;
+      }
+
+      // Cap at 100
+      riskScore = Math.min(riskScore, 100);
+      riskScore = Math.max(riskScore, 0);
+
+      // Update display
+      const riskPercentage = Math.round(riskScore);
+      document.getElementById('riskScore').textContent = riskPercentage + '%';
+      document.getElementById('riskPercentageDisplay').textContent = riskPercentage + '%';
+      
+      const indicator = document.getElementById('meterIndicator');
+      indicator.style.width = riskPercentage + '%';
+      indicator.textContent = riskPercentage + '%';
+
+      // Update category and description
+      const categoryDiv = document.getElementById('riskCategory');
+      const descriptionDiv = document.getElementById('riskDescription');
+
+      categoryDiv.className = 'risk-category';
+      
+      if (riskPercentage < 20) {
+        categoryDiv.classList.add('low');
+        categoryDiv.textContent = '✓ Low Risk';
+        descriptionDiv.textContent = 'Your current risk profile appears to be low. Continue with healthy lifestyle choices.';
+      } else if (riskPercentage < 40) {
+        categoryDiv.classList.add('medium');
+        categoryDiv.textContent = '⚠ Medium Risk';
+        descriptionDiv.textContent = 'You have some risk factors. Consider consulting a healthcare professional.';
+      } else if (riskPercentage < 60) {
+        categoryDiv.classList.add('high');
+        categoryDiv.textContent = '⚠ High Risk';
+        descriptionDiv.textContent = 'You should consult a doctor as soon as possible.';
+      } else {
+        categoryDiv.classList.add('high');
+        categoryDiv.textContent = '🔴 Very High Risk';
+        descriptionDiv.textContent = 'Please seek immediate medical attention. Consult a cardiologist urgently.';
+      }
+
+      updateProgressBar();
+    }
+
+    function updateProgressBar() {
+      let filledFields = 0;
+      let totalFields = 21; // 6 personal + 6 medical + 15 questions
+
+      if (document.getElementById('age').value) filledFields++;
+      if (document.getElementById('gender').value) filledFields++;
+      if (document.getElementById('height').value) filledFields++;
+      if (document.getElementById('weight').value) filledFields++;
+      if (document.getElementById('bpSystolic').value) filledFields++;
+      if (document.getElementById('bpDiastolic').value) filledFields++;
+      if (document.getElementById('cholesterol').value) filledFields++;
+      if (document.getElementById('diabetes').value) filledFields++;
+      if (document.getElementById('smokingAlcohol').value) filledFields++;
+      if (document.getElementById('hypertension').value) filledFields++;
+
+      for (let i = 1; i <= 15; i++) {
+        if (document.querySelector(`input[name="q${i}"]:checked`)) {
+          filledFields++;
+        }
+      }
+
+      const progressPercent = (filledFields / totalFields) * 100;
+      document.getElementById('progressFill').style.width = progressPercent + '%';
+      document.getElementById('currentQuestion').textContent = filledFields;
+    }
+
+    document.getElementById('testForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const user = JSON.parse(localStorage.getItem('heartai_user'));
+      if (!user) {
+        alert('Please login first');
+        return;
+      }
+
+      const formData = {
+        user_id: user.id,
+        age: parseInt(document.getElementById('age').value),
+        gender: document.getElementById('gender').value,
+        height: parseFloat(document.getElementById('height').value),
+        weight: parseFloat(document.getElementById('weight').value),
+        blood_pressure_systolic: parseInt(document.getElementById('bpSystolic').value),
+        blood_pressure_diastolic: parseInt(document.getElementById('bpDiastolic').value),
+        cholesterol_level: parseInt(document.getElementById('cholesterol').value),
+        has_diabetes: document.getElementById('diabetes').value === 'Yes',
+        smoking_alcohol: document.getElementById('smokingAlcohol').value,
+        has_hypertension: document.getElementById('hypertension').value === 'Yes'
+      };
+
+      // Add question answers
+      for (let i = 1; i <= 15; i++) {
+        const checked = document.querySelector(`input[name="q${i}"]:checked`);
+        formData[`q${i}_${['chest_tightness', 'fatigue', 'neck_jaw_pain', 'shortness_breath', 'chest_fullness', 'tired_unusual', 'sharp_burning', 'chest_pressure', 'tired_after_meal', 'chest_breath_pain', 'shortness_resting', 'squeezing_stress', 'indigestion', 'irregular_heartbeat', 'symptoms_cold_stress'][i-1]}`] = parseInt(checked.value);
+      }
+
+      // Calculate risk
+      const riskPercentage = parseInt(document.getElementById('riskScore').textContent);
+      formData.risk_percentage = riskPercentage;
+      
+      if (riskPercentage < 20) formData.risk_category = 'Low';
+      else if (riskPercentage < 40) formData.risk_category = 'Medium';
+      else if (riskPercentage < 60) formData.risk_category = 'High';
+      else formData.risk_category = 'Very High';
+
+      try {
+        await initializeSupabase();
+
+        const { error } = await supabase
+          .from('disease_predictions')
+          .insert([formData]);
+
+        if (error) throw error;
+
+        alert('Test submitted successfully!');
+        window.location.href = 'feedback.html?prediction=done';
+
+      } catch (error) {
+        alert('Error submitting test: ' + error.message);
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initializeSupabase();
+      createQuestions();
+
+      // Check if user is logged in
+      const user = localStorage.getItem('heartai_logged_in');
+      if (!user) {
+        alert('Please login first');
+        window.location.href = 'index.html';
+      }
+    });
+  </script>
+</body>
+</html>
