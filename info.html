@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart AI - Information & Education</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1a365d;
+      --accent: #00a8cc;
+      --bg-dark: #0f1419;
+      --bg-card: #1a2332;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b8c1;
+      --border: #2d3748;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 1.5em;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .btn-back {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-back:hover {
+      background: #0088aa;
+    }
+
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 25px;
+    }
+
+    h2 {
+      color: var(--accent);
+      font-size: 1.8em;
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    h3 {
+      color: var(--accent);
+      font-size: 1.3em;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      padding: 10px 0;
+      padding-left: 25px;
+      position: relative;
+      color: var(--text-secondary);
+    }
+
+    li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .warning-box {
+      background: rgba(231, 76, 60, 0.1);
+      border-left: 4px solid #e74c3c;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .info-box {
+      background: rgba(0, 168, 204, 0.1);
+      border-left: 4px solid var(--accent);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    @media (max-width: 768px) {
+      .section {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">❤️ Heart AI - Education</div>
+      <button class="btn-back" onclick="window.location.href='index.html'">← Home</button>
+    </header>
+
+    <!-- What is CAD -->
+    <div class="section">
+      <h2>What is Coronary Artery Disease (CAD)?</h2>
+      <p>
+        Coronary Artery Disease is a condition where plaque buildup narrows the coronary arteries, reducing blood flow to the heart muscle. This can lead to chest pain (angina) and heart attacks.
+      </p>
+      <div class="info-box">
+        <strong>Did you know?</strong> CAD is the leading cause of death globally. However, with early detection and lifestyle changes, it can be managed effectively.
+      </div>
+    </div>
+
+    <!-- Risk Factors -->
+    <div class="section">
+      <h2>Risk Factors for Heart Disease</h2>
+      
+      <h3>Controllable Risk Factors:</h3>
+      <ul>
+        <li>Smoking and alcohol consumption</li>
+        <li>High blood pressure (Hypertension)</li>
+        <li>High cholesterol levels</li>
+        <li>Diabetes</li>
+        <li>Obesity and lack of physical activity</li>
+        <li>Poor diet</li>
+        <li>Chronic stress</li>
+      </ul>
+
+      <h3>Non-Controllable Risk Factors:</h3>
+      <ul>
+        <li>Age (risk increases with age)</li>
+        <li>Gender (men are at higher risk earlier in life)</li>
+        <li>Family history of heart disease</li>
+        <li>Genetics</li>
+      </ul>
+    </div>
+
+    <!-- Symptoms -->
+    <div class="section">
+      <h2>Symptoms of Heart Disease</h2>
+      
+      <p>Early recognition of symptoms can save lives. Common symptoms include:</p>
+      
+      <ul>
+        <li>Chest pain or discomfort (especially during exertion)</li>
+        <li>Shortness of breath</li>
+        <li>Fatigue and weakness</li>
+        <li>Pain in neck, jaw, or shoulders</li>
+        <li>Nausea or dizziness</li>
+        <li>Irregular heartbeat</li>
+        <li>Cold sweats</li>
+      </ul>
+
+      <div class="warning-box">
+        <strong>⚠️ Emergency Warning:</strong> If you experience severe chest pain, difficulty breathing, or loss of consciousness, call emergency services immediately (Dial 911 or your local emergency number).
+      </div>
+    </div>
+
+    <!-- Prevention -->
+    <div class="section">
+      <h2>Prevention & Healthy Lifestyle</h2>
+      
+      <h3>Dietary Recommendations:</h3>
+      <ul>
+        <li>Eat heart-healthy foods: fruits, vegetables, whole grains</li>
+        <li>Reduce sodium and saturated fats</li>
+        <li>Limit sugar and refined carbohydrates</li>
+        <li>Include fish rich in omega-3 fatty acids</li>
+        <li>Stay hydrated with plenty of water</li>
+      </ul>
+
+      <h3>Exercise & Activity:</h3>
+      <ul>
+        <li>Aim for 150 minutes of moderate aerobic activity per week</li>
+        <li>Include strength training 2-3 times per week</li>
+        <li>Avoid sedentary lifestyle</li>
+        <li>Take regular breaks if working long hours</li>
+      </ul>
+
+      <h3>Lifestyle Changes:</h3>
+      <ul>
+        <li>Quit smoking and avoid secondhand smoke</li>
+        <li>Limit alcohol consumption</li>
+        <li>Manage stress through meditation or yoga</li>
+        <li>Get 7-9 hours of quality sleep</li>
+        <li>Maintain a healthy weight</li>
+        <li>Regular health checkups</li>
+      </ul>
+    </div>
+
+    <!-- Testing & Diagnosis -->
+    <div class="section">
+      <h2>Heart Disease Testing & Diagnosis</h2>
+      
+      <h3>Common Tests Include:</h3>
+      <ul>
+        <li><strong>Blood tests:</strong> Check cholesterol and other markers</li>
+        <li><strong>ECG (Electrocardiogram):</strong> Measures heart's electrical activity</li>
+        <li><strong>Stress test:</strong> Monitor heart during physical exertion</li>
+        <li><strong>Echocardiogram:</strong> Ultrasound of the heart</li>
+        <li><strong>CT scan:</strong> Detailed images of heart and blood vessels</li>
+        <li><strong>Angiography:</strong> X-ray to visualize arteries</li>
+      </ul>
+
+      <div class="info-box">
+        <strong>Regular screening is important!</strong> Adults over 40 should have regular health checkups to monitor cardiovascular health.
+      </div>
+    </div>
+
+    <!-- When to See a Doctor -->
+    <div class="section">
+      <h2>When to See a Doctor</h2>
+      
+      <p>Schedule an appointment with a healthcare provider if you:</p>
+      
+      <ul>
+        <li>Experience chest pain or discomfort</li>
+        <li>Feel persistent shortness of breath</li>
+        <li>Have a family history of heart disease</li>
+        <li>Have risk factors like high blood pressure or diabetes</li>
+        <li>Want to discuss preventive measures</li>
+        <li>Have been diagnosed with heart disease</li>
+      </ul>
+
+      <div class="warning-box">
+        <strong>Seek Emergency Care if you experience:</strong> Severe chest pain, sudden severe shortness of breath, loss of consciousness, or symptoms of a heart attack.
+      </div>
+    </div>
+
+    <!-- About Our App -->
+    <div class="section">
+      <h2>About Heart AI</h2>
+      
+      <p>
+        Heart AI is an advanced tool designed to assess your cardiovascular risk based on medical parameters and symptoms. Our AI-powered system analyzes your responses to provide a risk assessment and recommendations.
+      </p>
+
+      <h3>Important Disclaimer:</h3>
+      <div class="warning-box">
+        <p>
+          <strong>⚠️ Medical Disclaimer:</strong> Heart AI is a screening tool and NOT a medical diagnosis. The results should not replace professional medical advice. Always consult with a qualified healthcare provider for proper diagnosis, treatment, and medical advice. If you experience any concerning symptoms, seek immediate medical attention.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
