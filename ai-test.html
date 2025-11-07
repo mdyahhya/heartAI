@@ -106,6 +106,13 @@
       display: block;
     }
 
+    /* Main Content Layout - Column (no side by side) */
+    .test-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     /* Progress Bar */
     .progress-container {
       margin-bottom: 20px;
@@ -178,6 +185,13 @@
       border-color: var(--accent);
     }
 
+    /* Form Grid for Personal Info */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
     /* MCQ Options */
     .mcq-options {
       display: flex;
@@ -212,35 +226,35 @@
       margin: 0;
     }
 
-    /* Live Results Panel */
+    /* Live Results Panel - NOW FULL WIDTH BELOW */
     .live-results {
       background: var(--bg-card);
       border: 2px solid var(--accent);
       border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 20px;
+      padding: 20px;
+      width: 100%;
     }
 
     .live-results h3 {
       color: var(--accent);
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       text-align: center;
-      font-size: 1.1em;
+      font-size: 1.3em;
     }
 
     .risk-meter {
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     .meter-label {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 0.8em;
+      margin-bottom: 8px;
+      font-size: 0.9em;
     }
 
     .meter-bar {
-      height: 25px;
+      height: 35px;
       background: linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--danger) 100%);
       border-radius: 15px;
       overflow: hidden;
@@ -259,25 +273,25 @@
       justify-content: center;
       color: var(--text-primary);
       font-weight: bold;
-      font-size: 0.9em;
+      font-size: 1.1em;
       transition: width 0.3s ease;
     }
 
     .risk-percentage {
       text-align: center;
-      font-size: 2em;
+      font-size: 2.5em;
       color: var(--accent);
       font-weight: bold;
-      margin: 12px 0;
+      margin: 20px 0;
     }
 
     .risk-category {
       text-align: center;
-      padding: 12px;
+      padding: 15px;
       border-radius: 8px;
-      margin: 10px 0;
+      margin: 15px 0;
       font-weight: bold;
-      font-size: 1em;
+      font-size: 1.2em;
     }
 
     .risk-category.low {
@@ -293,6 +307,14 @@
     .risk-category.high {
       background: rgba(231, 76, 60, 0.2);
       color: var(--danger);
+    }
+
+    .risk-description {
+      text-align: center;
+      font-size: 1em;
+      color: var(--text-secondary);
+      margin-top: 15px;
+      line-height: 1.6;
     }
 
     /* History */
@@ -416,13 +438,13 @@
       padding: 12px;
       margin: 15px 0;
       text-align: left;
-      max-height: 200px;
+      max-height: 250px;
       overflow-y: auto;
       font-size: 0.85em;
     }
 
     .doctor-item {
-      padding: 8px 0;
+      padding: 10px 0;
       border-bottom: 1px solid var(--border);
     }
 
@@ -433,7 +455,7 @@
     .doctor-name {
       color: var(--accent);
       font-weight: bold;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
       word-break: break-word;
     }
 
@@ -535,6 +557,11 @@
         text-align: center;
       }
 
+      .test-wrapper {
+        flex-direction: column;
+        gap: 15px;
+      }
+
       .form-section {
         padding: 12px;
         margin-bottom: 12px;
@@ -546,9 +573,8 @@
       }
 
       .form-grid {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        gap: 12px !important;
+        grid-template-columns: 1fr;
+        gap: 12px;
       }
 
       .form-group {
@@ -569,15 +595,32 @@
       .live-results {
         position: static;
         margin-bottom: 15px;
-        padding: 12px;
+        padding: 15px;
+        order: 3;
+      }
+
+      .live-results h3 {
+        font-size: 1.2em;
+      }
+
+      .meter-bar {
+        height: 30px;
+      }
+
+      .meter-indicator {
+        font-size: 1em;
       }
 
       .risk-percentage {
-        font-size: 1.8em;
+        font-size: 2.2em;
       }
 
       .risk-category {
-        padding: 10px;
+        padding: 12px;
+        font-size: 1.1em;
+      }
+
+      .risk-description {
         font-size: 0.95em;
       }
 
@@ -619,7 +662,7 @@
 
       .doctor-list {
         font-size: 0.8em;
-        max-height: 180px;
+        max-height: 200px;
       }
 
       .history-item {
@@ -675,8 +718,17 @@
         font-size: 0.9em;
       }
 
+      .live-results {
+        padding: 12px;
+      }
+
       .risk-percentage {
-        font-size: 1.6em;
+        font-size: 1.9em;
+      }
+
+      .risk-category {
+        padding: 10px;
+        font-size: 1em;
       }
 
       .button-group .btn-primary,
@@ -700,7 +752,6 @@
       }
     }
   </style>
-
 </head>
 <body>
   <div class="container">
@@ -717,117 +768,115 @@
 
     <!-- Test Tab -->
     <div class="tab-content active" id="testTab">
-      <div style="display: grid; grid-template-columns: 1fr 300px; gap: 25px;">
+      <div class="test-wrapper">
+        <!-- Progress -->
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text">
+            Completed: <span id="currentQuestion">0</span> of <span id="totalQuestions">21</span>
+          </div>
+        </div>
+
         <!-- Main Form -->
-        <div>
-          <!-- Progress -->
-          <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text">
-              Completed: <span id="currentQuestion">0</span> of <span id="totalQuestions">21</span>
+        <form id="testForm">
+          <!-- Personal Information Section -->
+          <div class="form-section">
+            <div class="section-title">📋 Personal Information</div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Age (years)</label>
+                <input type="number" id="age" min="18" max="100" required onchange="updateLiveResults()">
+              </div>
+
+              <div class="form-group">
+                <label>Gender</label>
+                <select id="gender" required onchange="updateLiveResults()">
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Height (cm)</label>
+                <input type="number" id="height" min="100" max="250" required onchange="updateLiveResults()">
+              </div>
+
+              <div class="form-group">
+                <label>Weight (kg)</label>
+                <input type="number" id="weight" min="30" max="200" required onchange="updateLiveResults()">
+              </div>
             </div>
           </div>
 
-          <form id="testForm">
-            <!-- Personal Information Section -->
-            <div class="form-section">
-              <div class="section-title">📋 Personal Information</div>
+          <!-- Medical Parameters Section -->
+          <div class="form-section">
+            <div class="section-title">⚕️ Medical Parameters</div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="form-group">
-                  <label>Age (years)</label>
-                  <input type="number" id="age" min="18" max="100" required onchange="updateLiveResults()">
-                </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>BP Systolic (mmHg)</label>
+                <input type="number" id="bpSystolic" min="70" max="200" required onchange="updateLiveResults()">
+              </div>
 
-                <div class="form-group">
-                  <label>Gender</label>
-                  <select id="gender" required onchange="updateLiveResults()">
-                    <option value="">Select</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </div>
+              <div class="form-group">
+                <label>BP Diastolic (mmHg)</label>
+                <input type="number" id="bpDiastolic" min="40" max="130" required onchange="updateLiveResults()">
+              </div>
 
-                <div class="form-group">
-                  <label>Height (cm)</label>
-                  <input type="number" id="height" min="100" max="250" required onchange="updateLiveResults()">
-                </div>
+              <div class="form-group">
+                <label>Cholesterol (mg/dL)</label>
+                <input type="number" id="cholesterol" min="100" max="400" required onchange="updateLiveResults()">
+              </div>
 
-                <div class="form-group">
-                  <label>Weight (kg)</label>
-                  <input type="number" id="weight" min="30" max="200" required onchange="updateLiveResults()">
-                </div>
+              <div class="form-group">
+                <label>Diabetes</label>
+                <select id="diabetes" required onchange="updateLiveResults()">
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Smoking/Alcohol</label>
+                <select id="smokingAlcohol" required onchange="updateLiveResults()">
+                  <option value="">Select</option>
+                  <option value="Never">Never</option>
+                  <option value="Former">Former</option>
+                  <option value="Current">Current</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Hypertension</label>
+                <select id="hypertension" required onchange="updateLiveResults()">
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
               </div>
             </div>
+          </div>
 
-            <!-- Medical Parameters Section -->
-            <div class="form-section">
-              <div class="section-title">⚕️ Medical Parameters</div>
+          <!-- Symptom Questions Section -->
+          <div class="form-section">
+            <div class="section-title">❓ Symptom Assessment (15 Questions)</div>
+            <div id="questionsContainer"></div>
+          </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="form-group">
-                  <label>BP Systolic (mmHg)</label>
-                  <input type="number" id="bpSystolic" min="70" max="200" required onchange="updateLiveResults()">
-                </div>
+          <div class="button-group">
+            <button type="submit" class="btn-primary">Submit Test</button>
+            <button type="reset" class="btn-secondary" onclick="resetForm()">Clear Form</button>
+          </div>
+        </form>
 
-                <div class="form-group">
-                  <label>BP Diastolic (mmHg)</label>
-                  <input type="number" id="bpDiastolic" min="40" max="130" required onchange="updateLiveResults()">
-                </div>
-
-                <div class="form-group">
-                  <label>Cholesterol (mg/dL)</label>
-                  <input type="number" id="cholesterol" min="100" max="400" required onchange="updateLiveResults()">
-                </div>
-
-                <div class="form-group">
-                  <label>Diabetes</label>
-                  <select id="diabetes" required onchange="updateLiveResults()">
-                    <option value="">Select</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label>Smoking/Alcohol</label>
-                  <select id="smokingAlcohol" required onchange="updateLiveResults()">
-                    <option value="">Select</option>
-                    <option value="Never">Never</option>
-                    <option value="Former">Former</option>
-                    <option value="Current">Current</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label>Hypertension</label>
-                  <select id="hypertension" required onchange="updateLiveResults()">
-                    <option value="">Select</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <!-- Symptom Questions Section -->
-            <div class="form-section">
-              <div class="section-title">❓ Symptom Assessment (15 Questions)</div>
-              <div id="questionsContainer"></div>
-            </div>
-
-            <div class="button-group">
-              <button type="submit" class="btn-primary">Submit Test</button>
-              <button type="reset" class="btn-secondary" onclick="resetForm()">Clear Form</button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Live Results Panel -->
+        <!-- Live Results Panel - NOW BELOW ALL FORM CONTENT -->
         <div class="live-results">
-          <h3>Live Results</h3>
+          <h3>📊 Live Risk Assessment</h3>
 
           <div class="risk-meter">
             <div class="meter-label">
@@ -848,8 +897,8 @@
             Low Risk
           </div>
 
-          <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 15px;">
-            <p id="riskDescription">Complete the form to see risk assessment</p>
+          <div class="risk-description" id="riskDescription">
+            Complete the form to see risk assessment
           </div>
         </div>
       </div>
