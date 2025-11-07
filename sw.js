@@ -1,69 +1,104 @@
+// Heart AI Service Worker
 const CACHE_NAME = 'heartai-v1.0.1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/BMI.html',
+  '/ai-test.html',
+  '/feedback.html',
   '/profile.html',
-  '/about.html',
+  '/info.html',
+  '/feedback-page.html',
   '/manifest.json',
   '/heart.png'
 ];
 
-// Install - cache files immediately
+// Install Event
 self.addEventListener('install', event => {
-  console.log('[SW] Installing...');
+  console.log('[SW] Installing Service Worker...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[SW] Caching app shell');
         return cache.addAll(urlsToCache);
       })
-      .then(() => {
-        console.log('[SW] Skip waiting');
-        return self.skipWaiting();
-      })
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate - clean old caches and claim clients
+// Activate Event
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating...');
+  console.log('[SW] Activating Service Worker...');
   event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName !== CACHE_NAME) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      })
-      .then(() => {
-        console.log('[SW] Claiming clients');
-        return self.clients.claim();
-      })
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('[SW] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch - network first, fallback to cache
+// Fetch Event
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Clone response before caching
-        const responseToCache = response.clone();
-        
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-        
-        return response;
-      })
-      .catch(() => {
-        // If network fails, try cache
-        return caches.match(event.request);
-      })
-  );
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+
+  // Network first for HTML pages
+  if (event.request.url.includes('.html') || event.request.url.endsWith('/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (!response || response.status !== 200) return response;
+          
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  } else {
+    // Cache first for assets
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => {
+          if (response) return response;
+          
+          return fetch(event.request).then(response => {
+            if (!response || response.status !== 200) return response;
+            
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseClone);
+            });
+            return response;
+          });
+        })
+        .catch(() => {
+          // Return offline page if available
+          return caches.match('/index.html');
+        })
+    );
+  }
 });
+
+// Background Sync (for future use)
+self.addEventListener('sync', event => {
+  if (event.tag === 'sync-tests') {
+    event.waitUntil(syncTestData());
+  }
+});
+
+async function syncTestData() {
+  try {
+    console.log('[SW] Syncing test data...');
+    // Sync logic here
+  } catch (error) {
+    console.error('[SW] Sync error:', error);
+  }
+}
